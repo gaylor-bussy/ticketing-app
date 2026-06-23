@@ -4,7 +4,7 @@ var router = express.Router();
 var mysql = require("mysql2");
 var moment = require("moment");
 const auth = require("../middleware/auth");
-<<<<<<< HEAD
+
 const cors = require("cors");
 
 router.use(
@@ -15,17 +15,7 @@ router.use(
   }),
 );
 
-=======
-const cors = require('cors');
->>>>>>> e3b104cf6fde4252fcc25d5e3f022630466dc08c
-//test
 
-router.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
-router.listen(8080);
 
 
 

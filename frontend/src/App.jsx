@@ -15,6 +15,7 @@ import Dashboard_Manageur from "./pages/Dashboard_Manageur";
 import Dashboard_Formateur from "./pages/Dashboard_Formateur";
 import Consulter_Demande from "./pages/Consulter_Demande";
 
+
 function App() {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
@@ -35,8 +36,8 @@ function App() {
           <Route path="/dashboard/user" element={<Dashboard_User />} />
           <Route path="/inscription" element={<Inscription />} />
           <Route path="/connexion" element={<Connexion user={user} setUser={setUser} token={token} setToken={setToken} />} />
-          <Route path="/dashboard/manageur" element={<Dashboard_Manageur/>} />
-          <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur/>} />
+          <Route path="/dashboard/manageur" element={<Dashboard_Manageur />} />
+          <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur />} />
           <Route path="/consulter-demande" element={<Consulter_Demande />} />
         </Routes>
       </main>

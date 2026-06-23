@@ -27,7 +27,6 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -135,7 +134,7 @@ router.get("/dashboard/complet", auth, (req, res) => {
 
     return res.status(500).json({ error: "Accès refusé" });
   }
-  
+
   const sql = `
 SELECT *
 FROM demande
@@ -151,11 +150,11 @@ FROM demande
 });
 
 // route modif status
-router.put("/dashboard/complet/update/:id_demande", auth,function (req, res, next) {
+router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, next) {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
-  if (id_role !== 1 ){
-     return res.status(500).json({ error: "Accès refusé" });
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
   }
   const sql =
     " UPDATE demande SET id_status = " +
@@ -184,8 +183,8 @@ router.put("/dashboard/complet/update/:id_demande", auth,function (req, res, nex
 router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req, res, next) {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
-  if (id_role !== 1 ){
-     return res.status(500).json({ error: "Accès refusé" });
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
   }
   const sql =
     ` UPDATE demande SET realise = 1, Date_realise = '` +
@@ -316,31 +315,29 @@ router.post("/login", (req, res) => {
 
 // messagerie instantané
 
-router.post("/dashboard/complet/messagerie/:id_demande",auth, (req, res) => {
+router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
-   const { id_message, Date_heure,Message,id_demande } = req.body;
-    if (id_role === 4) {
+  const { id_message, Date_heure, Message, id_demande } = req.body;
+  if (id_role === 4) {
     console.log(id_role);
 
     return res.status(500).json({ error: "Accès refusé" });
   }
   const sql =
     `
-        INSERT INTO demande (
+        INSERT INTO message(
             id_message,
             Date_heure,
             Message,
             id_demande,
             
         )
-        VALUES (NULL, '` +
-    moment().format("YYYY-MM-DD,h:mm:ss ") +
-    `', '` +
-    req.body.Message +
-    `', '` +
-    id +
-    `'
+        VALUES (
+        NULL,
+        '` + moment().format("YYYY-MM-DD,h:mm:ss ") + `',
+        '` + req.body.Message + `', 
+        '` + id + `'
   )
     `;
 

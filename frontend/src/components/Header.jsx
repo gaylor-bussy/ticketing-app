@@ -9,6 +9,7 @@ export default function Header({ user, setUser, token, setToken }) {
       </Link>
       <Link className="text-white self-end text-2xl" to="/consulter-demande">
         Consulter une demande
+
       </Link>
 
       {user === null ? (
@@ -32,6 +33,7 @@ export default function Header({ user, setUser, token, setToken }) {
           setToken={setToken}
         />
       )}
+
     </header>
   );
 }

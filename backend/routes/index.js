@@ -20,7 +20,6 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -103,11 +102,11 @@ router.get("/dashboard/utilisateur", auth, (req, res) => {
   const id_user = req.user.id_user;
   // const sql = "SELECT *  FROM `demande` INNER JOIN user_ ON (demande.id_demandeur = user_.id_user )  WHERE id_demandeur =? AND id_user =?";
   const sql = `
-SELECT *
+SELECT *,(SELECT user_.nom)
 FROM demande
 INNER JOIN user_
     ON demande.id_demandeur = user_.id_user
-WHERE demande.id_demandeur = ? 
+WHERE demande.id_demandeur = ?
 `;
   db.query(sql, [id_user], (err, results) => {
     if (err) {

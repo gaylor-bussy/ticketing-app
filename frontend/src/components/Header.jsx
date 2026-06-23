@@ -19,6 +19,11 @@ export default function Header() {
             dashboard
           </button>
         </Link>
+        <Link className="text-white self-end text-2xl" to="/dashboard/admin" >
+          <button className="btn btn-success m-2 text-black h-14 w-32 text-2xl ">
+            dashboard a
+          </button>
+        </Link>
       </div>
     </header>
   );

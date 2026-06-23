@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import HomePage2 from "./pages/HomePage2";
 import Dashboard_User from "./pages/Dashboard_User";
+import Dashboard_Admin from "./pages/Dashboard_Admin";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/next" element={<HomePage2 />} />
           <Route path="/dashboard/user" element={<Dashboard_User />} />
+          <Route path="/dashboard/admin" element={<Dashboard_Admin />} />
 
         </Routes>
       </main>

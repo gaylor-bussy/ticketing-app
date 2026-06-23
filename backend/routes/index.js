@@ -4,8 +4,20 @@ var router = express.Router();
 var mysql = require("mysql2");
 var moment = require("moment");
 const auth = require("../middleware/auth");
-
+const cors = require('cors');
 //test
+
+router.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+router.listen(8080);
+
+
+
+
+
 
 const db = mysql.createPool({
   host: "localhost", // Adresse du serveur MySQL
@@ -76,7 +88,7 @@ router.post("/invite/request", (req, res) => {
   });
 });
 
-// /* GET NbRequest page. */
+// requete invité
 router.get("/invite/request/:NbRequest", (req, res) => {
   const NbRequest = req.params.NbRequest;
   const sql = "SELECT * FROM demande WHERE id_demande = ?";
@@ -89,12 +101,20 @@ router.get("/invite/request/:NbRequest", (req, res) => {
   });
 });
 
-// /* GET Menu page. */
 
-router.get("/dashboard", (req, res) => {
-  const sql = "SELECT *  FROM `demande` ";
+// menu utilisateur
+router.get("/dashboard/utilisateur", auth, (req, res) => {
+  const id_user = req.user.id_user;
+  // const sql = "SELECT *  FROM `demande` INNER JOIN user_ ON (demande.id_demandeur = user_.id_user )  WHERE id_demandeur =? AND id_user =?";
+  const sql = `
+SELECT *
+FROM demande
+INNER JOIN user_
+    ON demande.id_demandeur = user_.id_user
+WHERE demande.id_demandeur = ? 
+`;
+  db.query(sql, [id_user], (err, results) => {
 
-  db.query(sql, (err, results) => {
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
       return res.status(500).json({ error: "Erreur serveur" });
@@ -102,21 +122,37 @@ router.get("/dashboard", (req, res) => {
     res.json(results);
   });
 });
-// /* GET priority page. */
-// router.update('/dashboard/priority/:id_demande', function(req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
-// /* GET réalisé page. */
-// router.update('/dashboard/realise/:id_demande', function(req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
 
-// /* GET prise en charge page. */
-// router.update('/dashboard/requesttaken/:id_demande', function(req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
-router.put("/dashboard/update/:id_demande", function (req, res, next) {
+// menu complet pour manageur , formateur et tech
+router.get("/dashboard/complet", auth, (req, res) => {
+  const id_role = req.user.id_role;
+  if (id_role === 4) {
+    console.log(id_role);
+
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  
+  const sql = `
+SELECT *
+FROM demande
+`;
+  db.query(sql, (err, results) => {
+
+    if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.json(results);
+  });
+});
+
+// route modif status
+router.put("/dashboard/complet/update/:id_demande", auth,function (req, res, next) {
   const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1 ){
+     return res.status(500).json({ error: "Accès refusé" });
+  }
   const sql =
     " UPDATE demande SET id_status = " +
     req.body.id_status +
@@ -141,8 +177,12 @@ router.put("/dashboard/update/:id_demande", function (req, res, next) {
 });
 
 // changement de réaliser
-router.put("/dashboard/update/realise/:id_demande", function (req, res, next) {
+router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req, res, next) {
   const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1 ){
+     return res.status(500).json({ error: "Accès refusé" });
+  }
   const sql =
     ` UPDATE demande SET realise = 1, Date_realise = '` +
     moment().format("YYYY-MM-DD") +
@@ -166,8 +206,7 @@ router.put("/dashboard/update/realise/:id_demande", function (req, res, next) {
   });
 });
 
-// /* POST Inscription page. */
-
+// menu Inscription page. */
 const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
@@ -214,7 +253,7 @@ router.post("/register", async (req, res) => {
   });
 });
 
-// /* POST login page. */
+// menu login
 
 const jwt = require("jsonwebtoken");
 
@@ -250,7 +289,7 @@ router.post("/login", (req, res) => {
 
     const token = jwt.sign(
       {
-        id: user.id_user,
+        id_user: user.id_user,
         Num_AFPA: user.Num_AFPA,
         id_role: user.id_role,
       },
@@ -260,7 +299,8 @@ router.post("/login", (req, res) => {
       },
     );
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
+
+    console.log(token);
     return res.status(200).json({
       message: "connexion réussi",
       code: "OK",
@@ -268,13 +308,71 @@ router.post("/login", (req, res) => {
   });
 });
 
-// app.get('/profil', auth, (req, res) => {
 
-//     res.json({
-//         message: 'Accès autorisé',
-//         user: req.user
-//     });
 
-// });
+// messagerie instantané
+
+router.post("/dashboard/complet/messagerie/:id_demande",auth, (req, res) => {
+  const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+   const { id_message, Date_heure,Message,id_demande } = req.body;
+    if (id_role === 4) {
+    console.log(id_role);
+
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    `
+        INSERT INTO demande (
+            id_message,
+            Date_heure,
+            Message,
+            id_demande,
+            
+        )
+        VALUES (NULL, '` +
+    moment().format("YYYY-MM-DD,h:mm:ss ") +
+    `', '` +
+    req.body.Message +
+    `', '` +
+    id +
+    `'
+  )
+    `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Message envoyé",
+        code: "OK",
+      });
+    }
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

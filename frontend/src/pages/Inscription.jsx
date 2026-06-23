@@ -10,10 +10,10 @@ export default function Inscription() {
     const formData = new FormData(event.currentTarget);
 
     const user = {
-      numAfpa: formData.get("num_afpa"),
-      nom: formData.get("nom"),
-      prenom: formData.get("prenom"),
-      password: formData.get("password"),
+      Num_AFPA: formData.get("num_afpa"),
+      Nom: formData.get("nom"),
+      Prenom: formData.get("prenom"),
+      Password : formData.get("password"),
     };
 
     console.log(user);

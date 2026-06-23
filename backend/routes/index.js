@@ -4,6 +4,15 @@ var router = express.Router();
 var mysql = require("mysql2");
 var moment = require("moment");
 const auth = require("../middleware/auth");
+const cors = require("cors");
+
+router.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
 
 //test
 
@@ -12,6 +21,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
+  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

@@ -1,0 +1,38 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+export default function Connexion() {
+    
+
+  return (
+    <section className="flex justify-center h-full items-center" >
+      <form action="" className="flex flex-col w-xl" method="post">
+        <div className="my-4">
+          <label className="text-white text-2xl" htmlFor="">Numéro AFPA :</label>
+          <input
+            type="text"
+            placeholder="Saisissez votre numéro AFPA"
+            className="input input-success w-full placeholder:text-xl h-12"
+          />
+        </div>
+        <div className="my-4">
+          <label className="text-white text-2xl" htmlFor="">Mot de passe :</label>
+          <input
+            type="password"
+            placeholder="Saisissez votre mot de passe"
+            className="input input-success w-full placeholder:text-xl h-12"
+          />
+        </div>
+        <Link to="/next">
+          <button 
+            className="btn btn-success h-14 w-full text-2xl my-4 text-black"
+            type="submit"
+          >
+            Connexion
+          </button>
+        </Link>
+      </form>
+    </section>
+  );
+}

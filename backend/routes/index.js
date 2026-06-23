@@ -63,7 +63,7 @@ router.post("/invite/request", (req, res) => {
         VALUES (NULL, '` +
     req.body.Description +
     `', '` +
-    moment().format("YYYY-MM-DD") +
+    moment().format("YYYY-MM-DD ") +
     `', '` +
     req.body.Num_AFPA_invite +
     `', '` +
@@ -195,7 +195,7 @@ router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, ne
       }
     });
   },
-);
+  );
 })
 
 // changement de réaliser
@@ -247,7 +247,7 @@ router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req,
       }
     });
   },
-);
+  );
 });
 // menu Inscription page. */
 const bcrypt = require("bcrypt");
@@ -372,7 +372,7 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
             id_message,
             Date_heure,
             Message,
-            id_demande,
+            id_demande
             
         )
         VALUES (
@@ -382,8 +382,13 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
         '` + id + `'
   )
     `;
-
-  db.query(sql, (err, result) => {
+  const sql2 =
+    ` SELECT * 
+    FROM
+         message
+            
+    `;
+  db.query(sql, (err, results) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -392,13 +397,22 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
         code: err.code,
         sqlMessage: err.sqlMessage,
       });
-    } else {
-      return res.status(200).json({
-        message: "Message envoyé",
-        code: "OK",
-      });
     }
+  })
+  db.query(sql2, (err, results) => {
+     if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.json(results);
   });
-});
+ 
+}
+
+);
+
+
+
+
 
 module.exports = router;

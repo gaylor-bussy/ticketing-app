@@ -20,7 +20,6 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port:3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -69,7 +68,7 @@ router.post("/invite/request",  (req, res) => {
     req.body.Prenom_AFPA_invite +
     `', '0', '` +
     req.body.id_status +
-    `', NULL, NULL, NULL,NULL)
+    `', NULL,'8', NULL,NULL)
     `;
 
 db.query(sql, (err, result) => {
@@ -565,7 +564,9 @@ router.delete("/dashboard/complet/delete/utilisateur/:id_user", auth, function (
   },
   );
 });
-
+// ##############################################################################################################
+// #                                             supprime demande                                               #
+// ##############################################################################################################
 router.delete("/dashboard/complet/delete/demande/:id_demande", auth, function (req, res, next) {
  const id_demande= req.params.id_demande;
   const id_role = req.user.id_role;
@@ -593,6 +594,81 @@ router.delete("/dashboard/complet/delete/demande/:id_demande", auth, function (r
   },
   );
 });
+
+// ##############################################################################################################
+// #                                             positionnement formateur                                       #
+// ##############################################################################################################
+
+router.put("/dashboard/complet/uptade/posionnement/:id_demande", auth, function (req, res, next) {
+ const id_demande= req.params.id_demande;
+  const id_role = req.user.id_role;
+  const id_user = req.user.id_user
+  if (id_role !== 2) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    ` UPDATE demande SET id_positionneur = ? WHERE id_demande=? `;
+;
+
+  db.query(sql, [id_user, id_demande], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "positionnement effectuer",
+        code: "OK",
+      });
+    } 
+  },
+  );
+});
+
+// ##############################################################################################################
+// #                                             validation manageur                                            #
+// ##############################################################################################################
+
+
+router.put("/dashboard/complet/uptade/validation/:id_demande", auth, function (req, res, next) {
+ const id_demande= req.params.id_demande;
+  const id_role = req.user.id_role;
+  const id_user = req.user.id_user;
+  
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+
+    ` UPDATE demande SET id_technicien = id_positionneur WHERE id_demande=? `;
+;
+
+  db.query(sql, [id_demande], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "changement accepter",
+        code: "OK",
+      });
+    } 
+  },
+  );
+});
+
+
+
+
 
 
 

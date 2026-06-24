@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function HomePage({setIdDemandeInvitee}) {
-  const [nextPage, setNextPage] = useState(false);
+export default function HomePage({setIdDemandeInvitee,setNextPage,nextPage}) {
   const navigate = useNavigate();
 
  function handleNext() {

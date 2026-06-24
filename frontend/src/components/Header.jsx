@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
 import Deconnexion from "./Deconnexion";
-export default function Header({ user, setUser, token, setToken }) {
+export default function Header({ user, setUser, token, setToken,setNextPage }) {
+  function handleChange(){
+    setNextPage(false);
+  }
+  
   return (
     <header className="flex bg-zinc-800 p-4 justify-between">
       <img src="/public/images/logo-AFPA-final.png" alt="" className="h-52" />
-      <Link className="text-white self-end text-2xl" to="/">
+      <Link className="text-white self-end text-2xl" to="/" onClick={handleChange}>
         Ajouter une demande
       </Link>
       <Link className="text-white self-end text-2xl" to="/consulter-demande">

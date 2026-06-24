@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import Table_Demandes from "../components/Table_Demandes";
+import SearchBar from "../components/Search_Bar";
+import Modal_Add_Demande from "../components/Modal_Add_Demande";
 
 export default function Dashboard_User() {
     const [demandes, setDemandes] = useState([]);
@@ -7,33 +9,6 @@ export default function Dashboard_User() {
     const [showModal, setShowModal] = useState(false);
     const [description, setDescription] = useState("");
     const [priorite, setPriorite] = useState("2");
-
-    function DescriptionCell({ description = "" }) {
-        const [open, setOpen] = useState(false);
-
-        const words = description.split(" ");
-        const shortText = words.slice(0, 5).join(" ");
-
-        const formattedDescription = words.reduce((acc, word, index) => {
-            return acc + word + ((index + 1) % 10 === 0 ? "\n" : " ");
-        }, "");
-
-        return (
-            <td className="whitespace-pre-line">
-                {open ? formattedDescription : shortText}
-
-                {words.length > 5 && (
-                    <button
-                        className="btn btn-xs btn-success ml-2"
-                        onClick={() => setOpen(!open)}
-                    >
-                        {open ? "-" : "+"}
-                    </button>
-                )}
-            </td>
-        );
-    }
-
     const demandesFiltrees = demandes.filter((demande) => {
         const recherche = search.toLowerCase();
 
@@ -96,14 +71,10 @@ export default function Dashboard_User() {
     return (
         <section className="flex flex-col p-6">
             <section className="flex justify-between items-center mb-4">
-                <label className="input">
-                    <input
-                        type="search"
-                        placeholder="Recherche par numéro ou description"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </label>
+                <SearchBar
+                    search={search}
+                    setSearch={setSearch}
+                />
 
                 <button
                     className="btn btn-success"
@@ -117,48 +88,16 @@ export default function Dashboard_User() {
                 <Table_Demandes demandes={demandesFiltrees} />
             </div>
 
-            {showModal && (
-                <dialog className="modal modal-open">
-                    <div className="modal-box">
-                        <h3 className="font-bold text-lg mb-4">
-                            Nouvelle demande
-                        </h3>
+            <Modal_Add_Demande
+                showModal={showModal}
+                setShowModal={setShowModal}
+                description={description}
+                setDescription={setDescription}
+                priorite={priorite}
+                setPriorite={setPriorite}
+                ajouterDemande={ajouterDemande}
+            />
 
-                        <textarea
-                            className="textarea textarea-bordered w-full mb-4"
-                            placeholder="Description de la demande"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
-
-                        <select
-                            className="select select-bordered w-full mb-4"
-                            value={priorite}
-                            onChange={(e) => setPriorite(e.target.value)}
-                        >
-                            <option value="1">Urgent</option>
-                            <option value="2">Peut attendre</option>
-                            <option value="3">Pressant</option>
-                        </select>
-
-                        <div className="modal-action">
-                            <button
-                                className="btn btn-error"
-                                onClick={() => setShowModal(false)}
-                            >
-                                Annuler
-                            </button>
-
-                            <button
-                                className="btn btn-success"
-                                onClick={ajouterDemande}
-                            >
-                                Valider
-                            </button>
-                        </div>
-                    </div>
-                </dialog>
-            )}
         </section>
     );
 }

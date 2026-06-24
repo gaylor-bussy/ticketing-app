@@ -7,16 +7,17 @@ import Main from "./components/Main";
 import Footer from "./components/Footer";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import HomePage2 from "./pages/HomePage2";
 import Dashboard_User from "./pages/Dashboard_User";
 import Inscription from "./pages/Inscription";
 import Connexion from "./pages/Connexion";
 import Dashboard_Manageur from "./pages/Dashboard_Manageur";
 import Dashboard_Formateur from "./pages/Dashboard_Formateur";
 import Consulter_Demande from "./pages/Consulter_Demande";
+import Result_Demand from "./pages/Result_Demand";
 
 
 function App() {
+  const [idDemandeInvitee, setIdDemandeInvitee] = useState("");
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
 
@@ -31,14 +32,14 @@ function App() {
       <Header user={user} setUser={setUser} token={token} setToken={setToken} />
       <main className="bg-zinc-700">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/next" element={<HomePage2 />} />
+          <Route path="/" element={<HomePage setIdDemandeInvitee={setIdDemandeInvitee}/>} />
           <Route path="/dashboard/user" element={<Dashboard_User />} />
           <Route path="/inscription" element={<Inscription />} />
           <Route path="/connexion" element={<Connexion user={user} setUser={setUser} token={token} setToken={setToken} />} />
           <Route path="/dashboard/manageur" element={<Dashboard_Manageur />} />
           <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur />} />
           <Route path="/consulter-demande" element={<Consulter_Demande />} />
+          <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
         </Routes>
       </main>
       <Footer />

@@ -17,6 +17,7 @@ import Result_Demand from "./pages/Result_Demand";
 
 
 function App() {
+  const [idDemandeInvitee, setIdDemandeInvitee] = useState("");
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
 
@@ -31,14 +32,14 @@ function App() {
       <Header user={user} setUser={setUser} token={token} setToken={setToken} />
       <main className="bg-zinc-700">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage setIdDemandeInvitee={setIdDemandeInvitee}/>} />
           <Route path="/dashboard/user" element={<Dashboard_User />} />
           <Route path="/inscription" element={<Inscription />} />
           <Route path="/connexion" element={<Connexion user={user} setUser={setUser} token={token} setToken={setToken} />} />
           <Route path="/dashboard/manageur" element={<Dashboard_Manageur />} />
           <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur />} />
           <Route path="/consulter-demande" element={<Consulter_Demande />} />
-          <Route path="/resultat-demande" element={<Result_Demand />} />
+          <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
         </Routes>
       </main>
       <Footer />

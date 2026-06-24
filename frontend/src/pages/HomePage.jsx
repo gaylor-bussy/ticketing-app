@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function HomePage() {
+export default function HomePage({setIdDemandeInvitee}) {
   const [nextPage, setNextPage] = useState(false);
   const navigate = useNavigate();
 
@@ -36,9 +36,13 @@ export default function HomePage() {
       if (!reponse.ok) {
         return;
       }
+      console.log(resultat[0].id_demande);
+      setIdDemandeInvitee(resultat[0].id_demande);
     } catch (erreur) {
       console.error(erreur.message);
     }
+    
+    
   setNextPage(false);
   navigate("/resultat-demande");
     

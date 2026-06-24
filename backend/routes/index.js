@@ -37,7 +37,7 @@ db.getConnection((err, connection) => {
 });
 
 // /* POST Request invité page. */
-router.post("/invite/request", (req, res) => {
+router.post("/invite/request",  (req, res) => {
   const sql =
     `
         INSERT INTO demande (
@@ -69,23 +69,48 @@ router.post("/invite/request", (req, res) => {
     `', NULL, NULL, NULL,NULL)
     `;
 
-  db.query(sql, (err, result) => {
+db.query(sql, (err, result) => {
+  if (err) {
+    console.error("Erreur SQL :", err);
+
+    return res.status(500).json({
+      message: err.message,
+      code: err.code,
+      sqlMessage: err.sqlMessage,
+    });
+  }
+
+  const sql2 = `
+    SELECT id_demande
+    FROM demande
+    WHERE Num_AFPA_invite = ?
+    ORDER BY id_demande DESC
+    LIMIT 1
+  `;
+
+  db.query(sql2, [req.body.Num_AFPA_invite], (err, results) => {
     if (err) {
-      console.error("Erreur SQL :", err);
+      console.error(err);
 
       return res.status(500).json({
-        message: err.message,
-        code: err.code,
-        sqlMessage: err.sqlMessage,
-      });
-    } else {
-      return res.status(200).json({
-        message: "Demande ajoutée",
-        code: "OK",
+        error: "Erreur serveur",
       });
     }
+
+    return res.json(results);
   });
 });
+})
+
+
+
+
+
+
+
+
+
+
 
 
 // requete invité

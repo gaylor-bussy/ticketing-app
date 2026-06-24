@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Result_Demand({idDemandeInvitee}) {
   return (
     <section className="flex flex-col justify-center h-full">
@@ -7,7 +9,7 @@ export default function Result_Demand({idDemandeInvitee}) {
         Merci de bien vouloir garder ce numéro, il vous servira pour suivre
         votre demande.
       </p>
-      <p className="text-3xl text-white text-center"><a href="" className="text-3xl text-blue-700 ">Cliquez-ici</a> pour voir votre demande en cours</p>
+      <p className="text-3xl text-white text-center"><Link to={"/demand-invit-show"} className="text-3xl text-blue-500">Cliquez-ici</Link> pour voir votre demande en cours</p>
     </section>
   );
 }

@@ -16,17 +16,12 @@ router.use(
 );
 
 
-
-
-
-
-
-
 const db = mysql.createPool({
   host: "localhost", // Adresse du serveur MySQL
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
+  port:3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

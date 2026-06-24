@@ -20,7 +20,6 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port:3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -629,6 +628,50 @@ router.put("/dashboard/complet/uptade/posionnement/:id_demande", auth, function 
   },
   );
 });
+
+// ##############################################################################################################
+// #                                             validation manageur                                            #
+// ##############################################################################################################
+
+
+router.put("/dashboard/complet/uptade/validation/:id_demande", auth, function (req, res, next) {
+ const id_demande= req.params.id_demande;
+  const id_role = req.user.id_role;
+  const id_user = req.user.id_user;
+  
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+
+    ` UPDATE demande SET id_technicien = id_positionneur WHERE id_demande=? `;
+;
+
+  db.query(sql, [id_demande], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "changement accepter",
+        code: "OK",
+      });
+    } 
+  },
+  );
+});
+
+
+
+
+
+
+
 
 
 

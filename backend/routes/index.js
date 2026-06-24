@@ -4,7 +4,6 @@ var router = express.Router();
 var mysql = require("mysql2");
 var moment = require("moment");
 const auth = require("../middleware/auth");
-
 const cors = require("cors");
 
 router.use(
@@ -37,7 +36,7 @@ db.getConnection((err, connection) => {
   }
 });
 
-// /* POST Request page. */
+// /* POST Request invité page. */
 router.post("/invite/request", (req, res) => {
   const sql =
     `
@@ -52,7 +51,7 @@ router.post("/invite/request", (req, res) => {
             id_status,
             id_demandeur,
             id_technicien,
-            id_validateur
+            id_validateur,
             Date_realise
         )
         VALUES (NULL, '` +
@@ -65,7 +64,9 @@ router.post("/invite/request", (req, res) => {
     req.body.Nom_AFPA_invite +
     `', '` +
     req.body.Prenom_AFPA_invite +
-    `', '0', NULL, NULL, NULL, NULL,NULL)
+    `', '0', '` +
+    req.body.id_status +
+    `', NULL, NULL, NULL,NULL)
     `;
 
   db.query(sql, (err, result) => {
@@ -86,6 +87,7 @@ router.post("/invite/request", (req, res) => {
   });
 });
 
+
 // requete invité
 router.get("/invite/request/:NbRequest", (req, res) => {
   const NbRequest = req.params.NbRequest;
@@ -102,7 +104,7 @@ router.get("/invite/request/:NbRequest", (req, res) => {
 // menu utilisateur
 router.get("/dashboard/utilisateur", auth, (req, res) => {
   const id_user = req.user.id_user;
-  // const sql = "SELECT *  FROM `demande` INNER JOIN user_ ON (demande.id_demandeur = user_.id_user )  WHERE id_demandeur =? AND id_user =?";
+
   const sql = `
 SELECT *,(SELECT user_.nom)
 FROM demande
@@ -248,10 +250,11 @@ router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req,
 const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
-  const { Nom, Prenom, Num_AFPA, Password } = req.body;
+  const { Nom, Prenom, Num_AFPA, Password, id_user } = req.body;
   console.log(req.body);
   // try {
   const hash = await bcrypt.hash(Password, 10);
+
 
   const sql =
     `
@@ -273,7 +276,7 @@ router.post("/register", async (req, res) => {
     `','4')
         `;
 
-  db.query(sql, (err, result) => {
+  db.query(sql, (err, results) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -284,11 +287,12 @@ router.post("/register", async (req, res) => {
       });
     } else {
       return res.status(200).json({
-        message: "compte ajoutée",
+        message: "ajout compte réussi",
         code: "OK",
       });
     }
-  });
+  })
+
 });
 
 // menu login
@@ -303,6 +307,11 @@ router.post("/login", (req, res) => {
         FROM user_
         WHERE Num_AFPA = ?
     `;
+  const sql2 =
+    `
+            SELECT* FROM demande WHERE Num_AFPA_invite = ?
+    
+  `
 
   db.query(sql, [Num_AFPA], async (err, result) => {
     if (err) {
@@ -324,32 +333,49 @@ router.post("/login", (req, res) => {
         message: "Mot de passe incorrect",
       });
     }
+    const sql2 = ` UPDATE demande SET id_demandeur =  ? WHERE Num_AFPA_invite =? AND id_demandeur IS NULL `;
 
-    const token = jwt.sign(
-      {
-        id_user: user.id_user,
-        Num_AFPA: user.Num_AFPA,
-        id_role: user.id_role,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "24h",
-      },
-    );
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    return res.status(200).json({
-      message: "connexion réussi",
-      token: token,
-      user: {
-        id_user: user.id_user,
-        Num_AFPA: user.Num_AFPA,
-        id_role: user.id_role,
-      },
-    });
+    db.query(
+      sql2,
+      [user.id_user, user.Num_AFPA],
+      (err, updateResult) => {
+        if (err) {
+          console.error(
+            "Erreur lors de l'association des demandes :",
+            err
+          );
+        } else {
+          console.log(
+            `${updateResult.affectedRows} demande(s) associée(s) au compte ${user.id_user}`
+          );
+        }
+        const token = jwt.sign(
+          {
+            id_user: user.id_user,
+            Num_AFPA: user.Num_AFPA,
+            id_role: user.id_role,
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "24h",
+          },
+        );
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        return res.status(200).json({
+          message: "connexion réussi",
+          token: token,
+          user: {
+            id_user: user.id_user,
+            Num_AFPA: user.Num_AFPA,
+            id_role: user.id_role,
+          },
+        });
+      })
+
   });
 });
-
 // messagerie instantané
 
 router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
@@ -383,6 +409,7 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
          message
             
     `;
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Erreur SQL :", err);
@@ -395,17 +422,61 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
     }
   })
   db.query(sql2, (err, results) => {
-     if (err) {
+    if (err) {
       console.error("Erreur lors de la requête :", err.message);
       return res.status(500).json({ error: "Erreur serveur" });
     }
     res.json(results);
   });
- 
+
 }
 
 );
+// /* POST Request utilisateur page. */
+router.post("/dashboard/utilisateur/request", auth, (req, res) => {
+  const id_user = req.user.id_user;
+  const sql =
+    `
+        INSERT INTO demande (
+            id_demande,
+            Description,
+            Date_creation,
+            realise,
+            id_status,
+            id_demandeur,
+            id_technicien,
+            id_validateur,
+            Date_realise
+        )
+        VALUES (
+        NULL,
+         '` + req.body.Description + `', 
+         '` + moment().format("YYYY-MM-DD ") + `', 
+         '0',
+          '` + req.body.id_status + `',
+          '` + id_user + `' , 
+          NULL,
+           NULL,
+           NULL)
+    `;
 
+  db.query(sql, [id_user], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Demande ajoutée",
+        code: "OK",
+      });
+    }
+  });
+});
 
 
 

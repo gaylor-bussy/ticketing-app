@@ -13,6 +13,7 @@ import Connexion from "./pages/Connexion";
 import Dashboard_Manageur from "./pages/Dashboard_Manageur";
 import Dashboard_Formateur from "./pages/Dashboard_Formateur";
 import Consulter_Demande from "./pages/Consulter_Demande";
+import Result_Demand from "./pages/Result_Demand";
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/dashboard/manageur" element={<Dashboard_Manageur />} />
           <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur />} />
           <Route path="/consulter-demande" element={<Consulter_Demande />} />
+          <Route path="/resultat-demande" element={<Result_Demand />} />
         </Routes>
       </main>
       <Footer />

@@ -1,25 +1,48 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
   const [nextPage, setNextPage] = useState(false);
+  const navigate = useNavigate();
 
-  function handleNext() {
+ function handleNext() {
     setNextPage(true);
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
 
     const user = {
       Num_AFPA_invite: formData.get("num_afpa"),
-      Nom_AFPA_invite: formData.get("nom"),
-      Prenom_AFPA_invite: formData.get("prenom"),
-      Description: formData.get("password"),
+      Nom_AFPA_invite: formData.get("nom_afpa"),
+      Prenom_AFPA_invite: formData.get("prenom_afpa"),
+      Description: formData.get("description"),
+      id_status: formData.get("status")
     };
+ console.log(user);
 
-    setNextPage(false);
+    const url = "http://localhost:3000/invite/request";
+    try {
+      const reponse = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+      const resultat = await reponse.json();
+      if (!reponse.ok) {
+        return;
+      }
+    } catch (erreur) {
+      console.error(erreur.message);
+    }
+  setNextPage(false);
+  navigate("/resultat-demande");
+    
+    
   }
   return (
     <section className="flex justify-center h-full items-center">
@@ -33,6 +56,7 @@ export default function HomePage() {
               type="text"
               placeholder="Saisissez votre numéro AFPA"
               className="input input-success w-full placeholder:text-xl h-12"
+              name="num_afpa"
             />
           </div>
           <div className="my-4">
@@ -43,6 +67,7 @@ export default function HomePage() {
               type="text"
               placeholder="Saisissez votre Nom"
               className="input input-success w-full placeholder:text-xl h-12"
+              name="nom_afpa"
             />
           </div>
           <div className="my-4">
@@ -53,6 +78,7 @@ export default function HomePage() {
               type="text"
               placeholder="Saisissez votre Prénom"
               className="input input-success w-full placeholder:text-xl h-12"
+              name="prenom_afpa"
             />
           </div>
           <div
@@ -63,7 +89,7 @@ export default function HomePage() {
           </div>
         </section>
         <div className={nextPage === true ? "null" : "hidden"}>
-          <select defaultValue="" className="select block mb-2">
+          <select defaultValue="" className="select block mb-2" name="status">
             <option disabled={true}>Selectionner un niveau d'urgence :</option>
             <option value={2}>Peu attendre</option>
             <option value={3}>Pressant</option>
@@ -75,6 +101,7 @@ export default function HomePage() {
           <textarea
             placeholder="Saisir votre description"
             className="textarea textarea-success w-full h-36 mt-4"
+            name="description"
           ></textarea>
           <button
             className="btn btn-success h-14 w-full text-2xl my-4 text-black "

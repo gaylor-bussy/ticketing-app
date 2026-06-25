@@ -53,7 +53,7 @@ export default function Table_Demandes({ demandes }) {
 
                         <td>{demande.Nom || demande.id_demandeur || "Invité"}</td>
 
-                        <td>
+                        <td >
                             {demande.id_status === 1 && (
                                 <span className="badge badge-error">Urgent</span>
                             )}

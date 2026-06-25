@@ -9,9 +9,8 @@ export default function Dashboard_Manageur() {
     const [showModal, setShowModal] = useState(false);
     const [description, setDescription] = useState("");
     const [priorite, setPriorite] = useState("2");
-
     const demandesFiltrees = demandes.filter((demande) => {
-        const recherche = search.toLowerCase();
+    const recherche = search.toLowerCase();
 
         return (
             demande.id_demande.toString().includes(recherche) ||
@@ -60,6 +59,10 @@ export default function Dashboard_Manageur() {
         window.location.reload();
     };
 
+
+
+
+
     return (
         <section className="flex flex-col p-6">
             <section className="flex justify-between items-center mb-4">
@@ -67,7 +70,7 @@ export default function Dashboard_Manageur() {
                     search={search}
                     setSearch={setSearch}
                 />
-
+               
                 <button
                     className="btn btn-success"
                     onClick={() => setShowModal(true)}
@@ -77,7 +80,8 @@ export default function Dashboard_Manageur() {
             </section>
 
             <Table_Demandes demandes={demandesFiltrees} />
-
+            
+            
             <Modal_Add_Demande
                 showModal={showModal}
                 setShowModal={setShowModal}
@@ -87,6 +91,7 @@ export default function Dashboard_Manageur() {
                 setPriorite={setPriorite}
                 ajouterDemande={ajouterDemande}
             />
+            
         </section>
     );
 }

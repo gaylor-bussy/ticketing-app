@@ -19,7 +19,6 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -56,19 +55,20 @@ router.post("/invite/request", (req, res) => {
             id_positionneur,
             Date_realise
         )
-        VALUES (NULL, '` +
-    req.body.Description +
-    `', '` +
-    moment().format("YYYY-MM-DD ") +
-    `', '` +
-    req.body.Num_AFPA_invite +
-    `', '` +
-    req.body.Nom_AFPA_invite +
-    `', '` +
-    req.body.Prenom_AFPA_invite +
-    `', '0', '` +
-    req.body.id_status +
-    `', NULL,'8', NULL,NULL)
+        VALUES (
+        NULL, 
+        "` + req.body.Description + `",
+        "` + moment().format("YYYY-MM-DD,h:mm:ss ") + `",
+        "` + req.body.Num_AFPA_invite + `",
+        "` + req.body.Nom_AFPA_invite + `",
+        "` + req.body.Prenom_AFPA_invite + `", 
+        "0", 
+        "` + req.body.id_status + `",
+        NULL,
+        "8",
+        NULL,
+        NULL
+              )
     `;
 
   db.query(sql, (err, result) => {
@@ -102,7 +102,9 @@ router.post("/invite/request", (req, res) => {
       return res.json(results);
     });
   });
-});
+})
+
+
 
 // ##############################################################################################################
 // #                                         requete invité                                                     #
@@ -141,15 +143,14 @@ router.post("/register", async (req, res) => {
             Num_AFPA,
             Password,
             id_role)
-            VALUES (NULL, '` +
-    req.body.Nom +
-    `','` +
-    req.body.Prenom +
-    `','` +
-    req.body.Num_AFPA +
-    `','` +
-    hash +
-    `','4')
+            VALUES (
+            NULL, 
+            "` +req.body.Nom +`",
+            "` +req.body.Prenom +`",
+            "` +req.body.Num_AFPA +`",
+            "` +hash +`",
+            "4"
+            )
         `;
 
   db.query(sql, (err, results) => {
@@ -169,10 +170,20 @@ router.post("/register", async (req, res) => {
     }
   });
 });
+// ############################################################################################################################################################################################################################
+//                                          ##############################################################################################################
+//                                          #                                                                                                            #
+//                                          #                                          Partie sécurisé                                                   #
+//                                          #                                                                                                            #
+//                                          ##############################################################################################################
+// ############################################################################################################################################################################################################################
+
+
+
 // ##############################################################################################################
-// #Partie sécurisé                                                                                             #
+// #                                             menu login                                                     #
 // ##############################################################################################################
-// menu login
+
 
 const jwt = require("jsonwebtoken");
 
@@ -263,7 +274,7 @@ router.get("/dashboard/utilisateur", auth, (req, res) => {
 SELECT *,(SELECT user_.nom)
 FROM demande
 INNER JOIN user_
-    ON demande.id_demandeur = user_.id_user
+ON demande.id_demandeur = user_.id_user
 WHERE demande.id_demandeur = ?
 `;
   db.query(sql, [id_user], (err, results) => {
@@ -276,7 +287,7 @@ WHERE demande.id_demandeur = ?
 });
 
 // ##############################################################################################################
-// #                                       menu complet pour manageur , formateur et tech                       #
+// #                                       menu complet pour manageur                                           #
 // ##############################################################################################################
 
 router.get("/dashboard/complet", auth, (req, res) => {
@@ -300,8 +311,41 @@ FROM demande
   });
 });
 // ##############################################################################################################
+// #                                       menu complet  formateur et tech                                      #
+// ##############################################################################################################
+
+router.get("/dashboard/formateur_technicien", auth, (req, res) => {
+  const id_role = req.user.id_role;
+  if (id_role === 2 | id_role === 3) {
+    console.log(id_role);
+
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+
+  const sql = `
+SELECT *
+FROM demande
+`;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.json(results);
+  });
+});
+// ##############################################################################################################
 // #                                         route modif status                                                #
 // ##############################################################################################################
+
+router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, next) {
+  const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+  `UPDATE demande SET id_status = " `+req.body.id_status +`" WHERE id_demande=?` ;
 
 router.put(
   "/dashboard/complet/update/:id_demande",
@@ -313,9 +357,7 @@ router.put(
       return res.status(500).json({ error: "Accès refusé" });
     }
     const sql =
-      " UPDATE demande SET id_status = " +
-      req.body.id_status +
-      " WHERE id_demande=? ";
+    `UPDATE demande SET id_status = " `+req.body.id_status +`" WHERE id_demande=?` ;
 
     db.query(sql, [id], (err, result) => {
       if (err) {
@@ -355,41 +397,37 @@ router.put(
       });
     });
   },
-);
+  );
+})
+
 // ##############################################################################################################
 // #                                             changement de réaliser                                         #
 // ##############################################################################################################
 
-router.put(
-  "/dashboard/complet/update/realise/:id_demande",
-  auth,
-  function (req, res, next) {
-    const id = req.params.id_demande;
-    const id_role = req.user.id_role;
-    if (id_role !== 1) {
-      return res.status(500).json({ error: "Accès refusé" });
-    }
-    const sql =
-      ` UPDATE demande SET realise = 1, Date_realise = '` +
-      moment().format("YYYY-MM-DD") +
-      `' WHERE id_demande=? `;
+router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req, res, next) {
+  const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    ` UPDATE demande SET realise = 1, Date_realise = "` +moment().format("YYYY-MM-DD,h:mm:ss") +`" WHERE id_demande=? `;
 
     db.query(sql, [id], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "realise modifié , date realise ajouter",
-          code: "OK",
-        });
-      }
-    });
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "realise modifié , date realise ajouter",
+        code: "OK",
+      });
+    }
   },
 );
 
@@ -417,22 +455,13 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
         )
         VALUES (
         NULL,
-        '` +
-    moment().format("YYYY-MM-DD,h:mm:ss ") +
-    `',
-        '` +
-    req.body.Message +
-    `', 
-        '` +
-    id +
-    `'
+        "` + moment().format("YYYY-MM-DD,h:mm:ss ") + `",
+        "` + req.body.Message + `", 
+        "` + id + `"
   )
     `;
-  const sql2 = ` SELECT * 
-    FROM
-         message
-            
-    `;
+  const sql2 =
+    ` SELECT * FROM message `;
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -475,22 +504,14 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
         )
         VALUES (
         NULL,
-         '` +
-    req.body.Description +
-    `', 
-         '` +
-    moment().format("YYYY-MM-DD ") +
-    `', 
-         '0',
-          '` +
-    req.body.id_status +
-    `',
-          '` +
-    id_user +
-    `' , 
-          NULL,
-           NULL,
-           NULL)
+        "` + req.body.Description + `", 
+        "` + moment().format("YYYY-MM-DD ") + `", 
+        "0",
+        "` + req.body.id_status + `",
+        "` + id_user + `" , 
+        NULL,
+        NULL,
+        NULL)
     `;
 
   db.query(sql, [id_user], (err, result) => {
@@ -515,6 +536,15 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
 // #                                             changement de role                                             #
 // ##############################################################################################################
 
+router.put("/dashboard/complet/update/role/:id_user", auth, function (req, res, next) {
+  const id_user = req.params.id_user;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    ` UPDATE user_ SET id_role = "` + req.body.id_role + `" WHERE id_user=?  `;
+
 router.put(
   "/dashboard/complet/update/role/:id_user",
   auth,
@@ -527,87 +557,76 @@ router.put(
     const sql =
       ` UPDATE user_ SET id_role = ` + req.body.id_role + ` WHERE id_user=?  `;
 
-    db.query(sql, [id_user], (err, result) => {
-      if (err) {
-        console.error("Erreur SQL :", err);
-
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "role modifier",
-          code: "OK",
-        });
-      }
-    });
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "role modifier",
+        code: "OK",
+      });
+    }
   },
 );
 // ##############################################################################################################
 // #                                             supprime utilisateur                                           #
 // ##############################################################################################################
 
-router.delete(
-  "/dashboard/complet/delete/utilisateur/:id_user",
-  auth,
-  function (req, res, next) {
-    const id_user = req.params.id_user;
-    const id_role = req.user.id_role;
-    if (id_role !== 1) {
-      return res.status(500).json({ error: "Accès refusé" });
-    }
-    const sql = ` DELETE FROM user_  WHERE id_user=?  `;
+router.delete("/dashboard/complet/delete/utilisateur/:id_user", auth, function (req, res, next) {
+  const id_user = req.params.id_user;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    ` DELETE FROM user_  WHERE id_user=?  `;
 
     db.query(sql, [id_user], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "utilisateur supprimé",
-          code: "OK",
-        });
-      }
-    });
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "utilisateur supprimé",
+        code: "OK",
+      });
+    }
   },
 );
 // ##############################################################################################################
 // #                                             supprime demande                                               #
 // ##############################################################################################################
-router.delete(
-  "/dashboard/complet/delete/demande/:id_demande",
-  auth,
-  function (req, res, next) {
-    const id_demande = req.params.id_demande;
-    const id_role = req.user.id_role;
-    if (id_role !== 1) {
-      return res.status(500).json({ error: "Accès refusé" });
-    }
-    const sql = ` DELETE FROM demande WHERE id_demande=?  `;
+router.delete("/dashboard/complet/delete/demande/:id_demande", auth, function (req, res, next) {
+  const id_demande = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    ` DELETE FROM demande WHERE id_demande=?  `;
 
     db.query(sql, [id_demande], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "demande supprimé",
-          code: "OK",
-        });
-      }
-    });
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "demande supprimé",
+        code: "OK",
+      });
+    }
   },
 );
 
@@ -615,33 +634,32 @@ router.delete(
 // #                                             positionnement formateur                                       #
 // ##############################################################################################################
 
-router.put(
-  "/dashboard/complet/uptade/posionnement/:id_demande",
-  auth,
-  function (req, res, next) {
-    const id_demande = req.params.id_demande;
-    const id_role = req.user.id_role;
-    const id_user = req.user.id_user;
-    if (id_role !== 2) {
-      return res.status(500).json({ error: "Accès refusé" });
-    }
-    const sql = ` UPDATE demande SET id_positionneur = ? WHERE id_demande=? `;
-    db.query(sql, [id_user, id_demande], (err, result) => {
-      if (err) {
-        console.error("Erreur SQL :", err);
+router.put("/dashboard/complet/uptade/posionnement/:id_demande", auth, function (req, res, next) {
+  const id_demande = req.params.id_demande;
+  const id_role = req.user.id_role;
+  const id_user = req.user.id_user
+  if (id_role !== 2) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+    ` UPDATE demande SET id_positionneur = ? WHERE id_demande=? `;
+  ;
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "positionnement effectuer",
-          code: "OK",
-        });
-      }
-    });
+  db.query(sql, [id_user, id_demande], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "positionnement effectuer",
+        code: "OK",
+      });
+    }
   },
 );
 
@@ -657,27 +675,45 @@ router.put(
     const id_role = req.user.id_role;
     const id_user = req.user.id_user;
 
-    if (id_role !== 1) {
-      return res.status(500).json({ error: "Accès refusé" });
-    }
-    const sql = ` UPDATE demande SET id_technicien = id_positionneur WHERE id_demande=? `;
-    db.query(sql, [id_demande], (err, result) => {
-      if (err) {
-        console.error("Erreur SQL :", err);
+router.put("/dashboard/complet/uptade/validation/:id_demande", auth, function (req, res, next) {
+  const id_demande = req.params.id_demande;
+  const id_role = req.user.id_role;
+  const id_user = req.user.id_user;
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "changement accepter",
-          code: "OK",
-        });
-      }
-    });
+  if (id_role !== 1) {
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+  const sql =
+
+    ` UPDATE demande SET id_technicien = id_positionneur WHERE id_demande=? `;
+  ;
+
+  db.query(sql, [id_demande], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "changement accepter",
+        code: "OK",
+      });
+    }
   },
-);
+  );
+});
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

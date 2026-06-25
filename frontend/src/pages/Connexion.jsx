@@ -58,6 +58,7 @@ export default function Connexion({ user, setUser, token, setToken }) {
             placeholder="Saisissez votre numéro AFPA"
             className="input input-success w-full placeholder:text-xl h-12"
             name="num_afpa"
+            required
           />
         </div>
         <div className="my-4">
@@ -69,6 +70,7 @@ export default function Connexion({ user, setUser, token, setToken }) {
             placeholder="Saisissez votre mot de passe"
             className="input input-success w-full placeholder:text-xl h-12"
             name="password"
+            required
           />
         </div>
 

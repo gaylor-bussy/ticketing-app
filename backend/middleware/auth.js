@@ -10,7 +10,13 @@ function auth(req, res, next) {
         });
     }
 
-    const token = authHeader.split(' ')[1];
+    const [type, token] = authHeader.split(' ');
+
+    if (type !== 'Bearer' || !token) {
+        return res.status(401).json({
+            message: 'Token invalide'
+        });
+    }
 
     try {
 

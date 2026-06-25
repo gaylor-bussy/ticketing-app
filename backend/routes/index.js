@@ -113,7 +113,7 @@ router.post("/invite/request", (req, res) => {
 
     return res.status(200).json([
       {
-        id_demande: result.insertId,
+        results: result.insertId,
       },
     ]);
   });

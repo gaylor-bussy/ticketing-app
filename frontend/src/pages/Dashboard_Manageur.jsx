@@ -3,7 +3,7 @@ import Table_Demandes from "../components/Table_Demandes";
 import Search_Bar from "../components/Search_Bar";
 import Modal_Add_Demande from "../components/Modal_Add_Demande";
 
-export default function Dashboard_Manager() {
+export default function Dashboard_Manager({userr}) {
   const [demandes, setDemandes] = useState([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -141,6 +141,10 @@ export default function Dashboard_Manager() {
 
   return (
     <section className="flex flex-col p-6">
+      <div className="flex justify-between">
+        <p className="text-white mb-6">Bonjour {userr.nom}</p>
+        <p className="text-white">Role du compte : {userr.nom_role}</p>
+      </div>
       <section className="flex justify-between items-center mb-4">
         <Search_Bar search={search} setSearch={setSearch} />
 

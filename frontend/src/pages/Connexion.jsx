@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Connexion({ user, setUser, token, setToken }) {
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const [typeMessage, setTypeMessage] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -26,6 +28,8 @@ export default function Connexion({ user, setUser, token, setToken }) {
       });
       const resultat = await reponse.json();
       if (!reponse.ok) {
+        setTypeMessage("error");
+        setMessage(resultat.message);
         return;
       } else {
         localStorage.setItem("token", resultat.token);
@@ -35,13 +39,15 @@ export default function Connexion({ user, setUser, token, setToken }) {
         // Redirection selon le rôle
         if (resultat.user.id_role === 4) {
           navigate("/dashboard/user");
-        } else if (resultat.user.id_role === 3 || resultat.user.id_role === 2 ){
+        } else if (resultat.user.id_role === 3 || resultat.user.id_role === 2) {
           navigate("/dashboard/formateur-technicien");
         } else {
-            navigate("/dashboard/manageur");
+          navigate("/dashboard/manageur");
         }
       }
     } catch (erreur) {
+      setTypeMessage("error");
+      setMessage(resultat.message);
       console.error(erreur.message);
     }
   }
@@ -49,6 +55,27 @@ export default function Connexion({ user, setUser, token, setToken }) {
   return (
     <section className="flex justify-center h-full items-center">
       <form action="" className="flex flex-col w-xl" onSubmit={handleSubmit}>
+        {message ? (
+          <div
+            role="alert"
+            className={`alert ${typeMessage === "success" ? "alert-success" : "alert-error"}`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{message}</span>
+          </div>
+        ) : null}
         <div className="my-4">
           <label className="text-white text-2xl" htmlFor="">
             Numéro AFPA :

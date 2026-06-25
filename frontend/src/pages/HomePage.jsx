@@ -88,8 +88,8 @@ export default function HomePage({
       if (!reponse.ok) {
         return;
       }
-      console.log(resultat[0].id_demande);
-      setIdDemandeInvitee(resultat[0].id_demande);
+      console.log(resultat.results);
+      setIdDemandeInvitee(resultat.results);
     } catch (erreur) {
       console.error(erreur.message);
     }

@@ -46,7 +46,7 @@ function App() {
           <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande}/>} />
         </Routes>
       </main>
-      <Footer />
+      <Footer user={user}/>
     </section>
   );
 }

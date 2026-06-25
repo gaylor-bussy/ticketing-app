@@ -34,7 +34,7 @@ export default function Inscription() {
       }
       setTimeout(() => {
         navigate("/connexion");
-      }, 3000);
+      }, 500);
     } catch (erreur) {
       console.error(erreur.message);
     }

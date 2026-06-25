@@ -111,11 +111,11 @@ router.post("/invite/request", (req, res) => {
       });
     }
 
-    return res.status(200).json([
+    return res.status(200).json(
       {
         results: result.insertId,
       },
-    ]);
+    );
   });
 });
 // ##############################################################################################################

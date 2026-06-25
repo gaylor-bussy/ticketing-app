@@ -57,6 +57,7 @@ router.post("/invite/request", (req, res) => {
       message: " Doit contenir uniquement des chiffres.",
     });
   }
+  
 
   const sql = `
     INSERT INTO demande (
@@ -124,6 +125,12 @@ router.get("/invite/request/:NbRequest", (req, res) => {
   const NbRequest = req.params.NbRequest;
   const sql = "SELECT * FROM demande WHERE id_demande = ?";
   db.query(sql, [NbRequest], (err, results) => {
+    if (results.length === 0){
+        return res.status(409).json({
+        message: "Cette demande n'existe pas.",
+      });
+
+    }
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
       return res.status(500).json({ message: "Erreur serveur." });
@@ -140,55 +147,82 @@ const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
   const { Nom, Prenom, Num_AFPA, Password } = req.body;
-  console.log(req.body);
+
+ 
   if (!Nom || !Prenom || !Num_AFPA || !Password) {
     return res.status(400).json({
-      message: "Saisie incorrect.",
+      message: "Saisie incorrecte.",
     });
   }
 
+  
   if (!/^\d+$/.test(Num_AFPA)) {
     return res.status(400).json({
-      message: " Doit contenir uniquement des chiffres.",
+      message: "Le numéro AFPA doit contenir uniquement des chiffres.",
     });
   }
 
-  const hash = await bcrypt.hash(Password, 10);
-  const sql = `
-    INSERT INTO user_ (
-      id_user,
-      Nom,
-      Prenom,
-      Num_AFPA,
-      Password,
-      id_role
-    )
-    VALUES (
-      NULL,
-      ?,
-      ?,
-      ?,
-      ?,
-      ?
-    )
+  const sqlCheck = `
+    SELECT id_user
+    FROM user_
+    WHERE Num_AFPA = ?
   `;
-  const values = [Nom, Prenom, Num_AFPA, hash, 4];
 
-  db.query(sql, values, (err, results) => {
+  db.query(sqlCheck, [Num_AFPA], async (err, results) => {
     if (err) {
       console.error("Erreur SQL :", err);
-
       return res.status(500).json({
-        message: err.message,
-        code: err.code,
-        sqlMessage: err.sqlMessage,
-      });
-    } else {
-      return res.status(200).json({
-        message: "Inscription réussie.",
-        code: "OK",
+        message: "Erreur serveur.",
       });
     }
+
+    if (results.length > 0) {
+      return res.status(409).json({
+        message: "Ce numéro AFPA est déjà utilisé.",
+      });
+    }
+
+    // Hash du mot de passe
+    const hash = await bcrypt.hash(Password, 10);
+
+    const sql = `
+      INSERT INTO user_ (
+        id_user,
+        Nom,
+        Prenom,
+        Num_AFPA,
+        Password,
+        id_role
+      )
+      VALUES (
+        NULL,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+      )
+    `;
+
+    const values = [Nom, Prenom, Num_AFPA, hash, 4];
+
+    db.query(sql, values, (err, results) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
+
+        return res.status(500).json({
+          message: err.message,
+          code: err.code,
+          sqlMessage: err.sqlMessage,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Inscription réussie.",
+        code: "OK",
+        id_user: results.insertId,
+      });
+    });
   });
 });
 // ############################################################################################################################################################################################################################
@@ -370,6 +404,7 @@ LEFT JOIN user_
 // #                                         route modif status                                                #
 // ##############################################################################################################
 
+<<<<<<< HEAD
 router.put(
   "/dashboard/complet/update/:id_demande",
   auth,
@@ -401,8 +436,38 @@ router.put(
           code: "OK",
         });
       }
+=======
+router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, next) {
+  const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1 && id_role !== 2 && id_role !== 3) {
+    return res.status(403).json({ message: "Accès refusé." });
+  }
+  if (!req.body.id_status) {
+    return res.status(400).json({
+      message: "Saisie incorrect.",
+>>>>>>> f18ad68a9ce44effb77fcab512bcf9e7bf30f856
     });
-  },
+  }
+  const sql = " UPDATE demande SET id_status = ? WHERE id_demande=? ";
+
+  db.query(sql, [req.body.id_status, id], (err, result) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+
+      return res.status(500).json({
+        message: err.message,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+      });
+    } else {
+      return res.status(200).json({
+        message: "Status modifié.",
+        code: "OK",
+      });
+    }
+  });
+},
 );
 
 // ##############################################################################################################
@@ -459,8 +524,13 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   if (!req.body.Message) {
     return res.status(400).json({
       message: "Saisie incorrect.",
+<<<<<<< HEAD
     });
   }
+=======
+    })
+  };
+>>>>>>> f18ad68a9ce44effb77fcab512bcf9e7bf30f856
   const sql = `
     INSERT INTO message (
       id_message,
@@ -715,10 +785,17 @@ router.put(
   function (req, res, next) {
     const id_demande = req.params.id_demande;
     const id_role = req.user.id_role;
+
     if (id_role !== 1) {
       return res.status(403).json({ message: "Accès refusé." });
     }
-    const sql = ` UPDATE demande SET id_technicien = id_positionneur WHERE id_demande=? `;
+
+    const sql = `
+      UPDATE demande
+      SET id_technicien = id_positionneur
+      WHERE id_demande = ?
+    `;
+
     db.query(sql, [id_demande], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
@@ -728,13 +805,51 @@ router.put(
           code: err.code,
           sqlMessage: err.sqlMessage,
         });
-      } else {
-        return res.status(200).json({
-          message: "Changement accepté",
-          code: "OK",
+      }
+
+      return res.status(200).json({
+        message: "Changement accepté",
+        code: "OK",
+      });
+    });
+  }
+);
+
+// ##############################################################################################################
+// #                                             refus manageur                                            #
+// ##############################################################################################################
+
+router.put(
+  "/dashboard/complet/uptade/refus/:id_demande",
+  auth,
+  function (req, res, next) {
+    const id_demande = req.params.id_demande;
+    const id_role = req.user.id_role;
+
+    if (id_role !== 1) {
+      return res.status(403).json({ message: "Accès refusé." });
+    }
+
+    const sql = `
+      UPDATE demande
+      SET id_positionneur = NULL
+      WHERE id_demande = ?
+    `;
+
+    db.query(sql, [id_demande], (err, result) => {
+      if (err) {
+        return res.status(500).json({
+          message: err.message,
+          code: err.code,
+          sqlMessage: err.sqlMessage,
         });
       }
+
+      return res.status(200).json({
+        message: "Positionnement refusé.",
+        code: "OK",
+      });
     });
-  },
+  }
 );
 module.exports = router;

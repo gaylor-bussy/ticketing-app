@@ -45,6 +45,11 @@ return res.status(404).json({
           message: "Saisie incorrect.",
         });
   }
+   if (!/^\d+$/.test(req.body.Num_AFPA_invite)) {
+        return res.status(400).json({
+            message: " Doit contenir uniquement des chiffres."
+        });
+    }
   const sql =
     `
         INSERT INTO demande (
@@ -148,12 +153,18 @@ router.post("/register", async (req, res) => {
   
   const { Nom, Prenom, Num_AFPA, Password, id_user } = req.body;
   console.log(req.body);
-  const hash = await bcrypt.hash(Password, 10);
-  if (!req.body.Nom||!req.body.Prenom||!req.body.id_status||!req.body.Num_AFPA||!hash){
+  if (!req.body.Nom||!req.body.Prenom||!req.body.Num_AFPA||!Password){
 return res.status(404).json({
           message: "Saisie incorrect.",
         });
   }
+  const hash = await bcrypt.hash(Password, 10);
+  
+    if (!/^\d+$/.test(req.body.Num_AFPA)) {
+        return res.status(400).json({
+            message: " Doit contenir uniquement des chiffres."
+        });
+    }
   const sql =
     `
             INSERT INTO user_(
@@ -218,7 +229,12 @@ router.post("/login", (req, res) => {
 return res.status(404).json({
           message: "Saisie incorrect.",
         });
-  }
+  }  
+  if (!/^\d+$/.test(Num_AFPA)) {
+        return res.status(400).json({
+            message: " Doit contenir uniquement des chiffres."
+        });
+    }
   const sql = `
         SELECT *
         FROM user_

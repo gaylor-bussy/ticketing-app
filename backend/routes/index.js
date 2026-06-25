@@ -404,39 +404,6 @@ LEFT JOIN user_
 // #                                         route modif status                                                #
 // ##############################################################################################################
 
-<<<<<<< HEAD
-router.put(
-  "/dashboard/complet/update/:id_demande",
-  auth,
-  function (req, res, next) {
-    const id = req.params.id_demande;
-    const id_role = req.user.id_role;
-    if (id_role !== 1 && id_role !== 2 && id_role !== 3) {
-      return res.status(403).json({ message: "Accès refusé." });
-    }
-    if (!req.body.id_status) {
-      return res.status(400).json({
-        message: "Saisie incorrect.",
-      });
-    }
-    const sql = " UPDATE demande SET id_status = ? WHERE id_demande=? ";
-
-    db.query(sql, [req.body.id_status, id], (err, result) => {
-      if (err) {
-        console.error("Erreur SQL :", err);
-
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "Status modifié.",
-          code: "OK",
-        });
-      }
-=======
 router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, next) {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
@@ -446,7 +413,6 @@ router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, ne
   if (!req.body.id_status) {
     return res.status(400).json({
       message: "Saisie incorrect.",
->>>>>>> f18ad68a9ce44effb77fcab512bcf9e7bf30f856
     });
   }
   const sql = " UPDATE demande SET id_status = ? WHERE id_demande=? ";
@@ -524,13 +490,8 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   if (!req.body.Message) {
     return res.status(400).json({
       message: "Saisie incorrect.",
-<<<<<<< HEAD
-    });
-  }
-=======
     })
   };
->>>>>>> f18ad68a9ce44effb77fcab512bcf9e7bf30f856
   const sql = `
     INSERT INTO message (
       id_message,

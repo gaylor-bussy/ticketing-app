@@ -168,15 +168,6 @@ export default function Dashboard_Manager() {
 
     const refuserPositionnement = async (id_demande) => {
         const token = localStorage.getItem("token");
-        const response = await fetch(
-            `http://localhost:3000/dashboard/complet/uptade/validation/${id_demande}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
 
         const response = await fetch(
             `http://localhost:3000/dashboard/complet/uptade/refus/${id_demande}`,
@@ -201,6 +192,7 @@ export default function Dashboard_Manager() {
             );
         }
     };
+
 
     return (
         <section className="flex flex-col p-6">

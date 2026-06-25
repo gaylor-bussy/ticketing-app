@@ -37,9 +37,9 @@ export default function Inscription() {
       }
       setTypeMessage("success");
       setMessage(resultat.message);
-      // setTimeout(() => {
-      //   navigate("/connexion");
-      // }, 500);
+      setTimeout(() => {
+        navigate("/connexion");
+      }, 1500);
     } catch (erreur) {
       setTypeMessage("error");
       setMessage("Impossible de contacter le serveur.");

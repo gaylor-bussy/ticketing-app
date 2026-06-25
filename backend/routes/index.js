@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  // port: 3307,
+  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -100,7 +100,7 @@ router.post("/invite/request", (req, res) => {
     req.body.id_status,
     8,
   ];
-
+  console.log(values);
   db.query(sql, values, (err, result) => {
     if (err) {
       console.error("Erreur SQL :", err);
@@ -112,11 +112,9 @@ router.post("/invite/request", (req, res) => {
       });
     }
 
-    return res.status(200).json(
-      {
-        results: result.insertId,
-      },
-    );
+    return res.status(200).json({
+      results: result.insertId,
+    });
   });
 });
 // ##############################################################################################################
@@ -453,22 +451,26 @@ router.put(
     }
     const sql = ` UPDATE demande SET realise = 1, Date_realise = ? WHERE id_demande=? `;
 
-    db.query(sql, [moment().format("YYYY-MM-DD HH:mm:ss"), id], (err, result) => {
-      if (err) {
-        console.error("Erreur SQL :", err);
+    db.query(
+      sql,
+      [moment().format("YYYY-MM-DD HH:mm:ss"), id],
+      (err, result) => {
+        if (err) {
+          console.error("Erreur SQL :", err);
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "Réalisation faite.",
-          code: "OK",
-        });
-      }
-    });
+          return res.status(500).json({
+            message: err.message,
+            code: err.code,
+            sqlMessage: err.sqlMessage,
+          });
+        } else {
+          return res.status(200).json({
+            message: "Réalisation faite.",
+            code: "OK",
+          });
+        }
+      },
+    );
   },
 );
 
@@ -506,25 +508,29 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   `;
   const sql2 = ` SELECT * FROM message WHERE id_demande = ? `;
 
-  db.query(sql, [moment().format("YYYY-MM-DD HH:mm:ss"), req.body.Message, id], (err, results) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
-
-      return res.status(500).json({
-        message: err.message,
-        code: err.code,
-        sqlMessage: err.sqlMessage,
-      });
-    }
-
-    db.query(sql2, [id], (err, results) => {
+  db.query(
+    sql,
+    [moment().format("YYYY-MM-DD HH:mm:ss"), req.body.Message, id],
+    (err, results) => {
       if (err) {
-        console.error("Erreur lors de la requête :", err.message);
-        return res.status(500).json({ message: "Erreur serveur." });
+        console.error("Erreur SQL :", err);
+
+        return res.status(500).json({
+          message: err.message,
+          code: err.code,
+          sqlMessage: err.sqlMessage,
+        });
       }
-      res.json(results);
-    });
-  });
+
+      db.query(sql2, [id], (err, results) => {
+        if (err) {
+          console.error("Erreur lors de la requête :", err.message);
+          return res.status(500).json({ message: "Erreur serveur." });
+        }
+        res.json(results);
+      });
+    },
+  );
 });
 
 // ##############################################################################################################
@@ -563,22 +569,32 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
     )
   `;
 
-  db.query(sql, [req.body.Description, moment().format("YYYY-MM-DD HH:mm:ss"), 0, req.body.id_status, id_user], (err, result) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
+  db.query(
+    sql,
+    [
+      req.body.Description,
+      moment().format("YYYY-MM-DD HH:mm:ss"),
+      0,
+      req.body.id_status,
+      id_user,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
 
-      return res.status(500).json({
-        message: err.message,
-        code: err.code,
-        sqlMessage: err.sqlMessage,
-      });
-    } else {
-      return res.status(200).json({
-        message: "Demande ajoutée.",
-        code: "OK",
-      });
-    }
-  });
+        return res.status(500).json({
+          message: err.message,
+          code: err.code,
+          sqlMessage: err.sqlMessage,
+        });
+      } else {
+        return res.status(200).json({
+          message: "Demande ajoutée.",
+          code: "OK",
+        });
+      }
+    },
+  );
 });
 
 // ##############################################################################################################

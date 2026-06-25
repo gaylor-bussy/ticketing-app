@@ -20,7 +20,6 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port:3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -174,10 +173,20 @@ router.post("/register", async (req, res) => {
   })
 
 });
+// ############################################################################################################################################################################################################################
+//                                          ##############################################################################################################
+//                                          #                                                                                                            #
+//                                          #                                          Partie sécurisé                                                   #
+//                                          #                                                                                                            #
+//                                          ##############################################################################################################
+// ############################################################################################################################################################################################################################
+
+
+
 // ##############################################################################################################
-// #Partie sécurisé                                                                                             #
+// #                                             menu login                                                     #
 // ##############################################################################################################
-// menu login
+
 
 const jwt = require("jsonwebtoken");
 
@@ -283,12 +292,36 @@ WHERE demande.id_demandeur = ?
 });
 
 // ##############################################################################################################
-// #                                       menu complet pour manageur , formateur et tech                       #
+// #                                       menu complet pour manageur                                           #
 // ##############################################################################################################
 
 router.get("/dashboard/complet", auth, (req, res) => {
   const id_role = req.user.id_role;
   if (id_role === 4) {
+    console.log(id_role);
+
+    return res.status(500).json({ error: "Accès refusé" });
+  }
+
+  const sql = `
+SELECT *
+FROM demande
+`;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+    res.json(results);
+  });
+});
+// ##############################################################################################################
+// #                                       menu complet  formateur et tech                                      #
+// ##############################################################################################################
+
+router.get("/dashboard/formateur_technicien", auth, (req, res) => {
+  const id_role = req.user.id_role;
+  if (id_role === 2 | id_role === 3) {
     console.log(id_role);
 
     return res.status(500).json({ error: "Accès refusé" });
@@ -666,7 +699,6 @@ router.put("/dashboard/complet/uptade/validation/:id_demande", auth, function (r
   },
   );
 });
-
 
 
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+
 function DescriptionCell({ description = "" }) {
     const [open, setOpen] = useState(false);
 
@@ -22,11 +23,28 @@ function DescriptionCell({ description = "" }) {
                     {open ? "-" : "+"}
                 </button>
             )}
+
+            <button
+                className="btn btn-xs btn-ghost ml-2"
+                onClick={() => navigator.clipboard.writeText(description)}
+                title="Copier la description"
+            >
+                📋
+            </button>
         </td>
     );
 }
 
-export default function Table_Demandes({ demandes }) {
+export default function Table_Demandes({
+    demandes,
+    isFormateur = false,
+    isTechnicien = false,
+    isManageur = false,
+    positionnerDemande,
+    ouvrirModalPriorite,
+    idUser,
+}) {
+
     return (
         <table className="table table-zebra">
             <thead>
@@ -53,7 +71,7 @@ export default function Table_Demandes({ demandes }) {
 
                         <td>{demande.Nom || demande.id_demandeur || "Invité"}</td>
 
-                        <td>
+                        <td >
                             {demande.id_status === 1 && (
                                 <span className="badge badge-error">Urgent</span>
                             )}
@@ -65,12 +83,33 @@ export default function Table_Demandes({ demandes }) {
                             {demande.id_status === 3 && (
                                 <span className="badge badge-warning">Pressant</span>
                             )}
+
+                            {(isFormateur || isTechnicien || isManageur) && (
+                                <button
+                                    className="btn btn-xs btn-outline ml-2"
+                                    onClick={() => ouvrirModalPriorite(demande)}
+                                >
+                                    ✏️
+                                </button>
+                            )}
                         </td>
 
                         <td>
-                            {demande.id_technicien === null
-                                ? "En cours de décision"
-                                : demande.id_technicien}
+                            {demande.id_positionneur === idUser ? (
+                                "Positionné, en cours de validation"
+                            ) : demande.id_positionneur &&
+                                demande.id_positionneur !== 1 ? (
+                                `Formateur ${demande.Nom_positionneur} déjà positionné`
+                            ) : isFormateur ? (
+                                <button
+                                    className="btn btn-xs btn-success"
+                                    onClick={() => positionnerDemande(demande.id_demande)}
+                                >
+                                    Se positionner
+                                </button>
+                            ) : (
+                                "En cours de décision"
+                            )}
                         </td>
                     </tr>
                 ))}

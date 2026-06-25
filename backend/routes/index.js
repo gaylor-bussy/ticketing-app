@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port:3307,
+  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -214,7 +214,7 @@ router.post("/login", (req, res) => {
     `;
   const sql2 = `
             SELECT* FROM demande WHERE Num_AFPA_invite = ?
-    
+   
   `;
 
   db.query(sql, [Num_AFPA], async (err, result) => {
@@ -332,15 +332,20 @@ FROM demande
 
 router.get("/dashboard/formateur_technicien", auth, (req, res) => {
   const id_role = req.user.id_role;
-  if ((id_role === 2) | (id_role === 3)) {
+  if (id_role !== 2 && id_role !== 3) {
     console.log(id_role);
 
     return res.status(500).json({ error: "Accès refusé" });
   }
 
   const sql = `
-SELECT *
+SELECT
+    demande.*,
+    user_.Nom AS Nom_positionneur,
+    user_.Prenom AS Prenom_positionneur
 FROM demande
+LEFT JOIN user_
+    ON demande.id_positionneur = user_.id_user
 `;
   db.query(sql, (err, results) => {
     if (err) {
@@ -360,13 +365,13 @@ router.put(
   function (req, res, next) {
     const id = req.params.id_demande;
     const id_role = req.user.id_role;
-    if (id_role !== 1) {
-      return res.status(500).json({ error: "Accès refusé" });
+    if (id_role !== 1 && id_role !== 2 && id_role !== 3) {
+      return res.status(403).json({ error: "Accès refusé" });
     }
     const sql =
-      `UPDATE demande SET id_status = " ` +
+      " UPDATE demande SET id_status = " +
       req.body.id_status +
-      `" WHERE id_demande=?`;
+      " WHERE id_demande=? ";
 
     db.query(sql, [id], (err, result) => {
       if (err) {
@@ -730,5 +735,4 @@ router.put(
     });
   },
 );
-
 module.exports = router;

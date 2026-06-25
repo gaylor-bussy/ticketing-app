@@ -43,6 +43,8 @@ export default function Table_Demandes({
     positionnerDemande,
     ouvrirModalPriorite,
     idUser,
+    approuverPositionnement,
+    refuserPositionnement,
 }) {
 
     return (
@@ -94,23 +96,34 @@ export default function Table_Demandes({
                             )}
                         </td>
 
-                        <td>
-                            {demande.id_positionneur === idUser ? (
-                                "Positionné, en cours de validation"
-                            ) : demande.id_positionneur &&
-                                demande.id_positionneur !== 1 ? (
-                                `Formateur ${demande.Nom_positionneur} déjà positionné`
-                            ) : isFormateur ? (
+                        {isManageur && demande.id_positionneur && !demande.id_technicien ? (
+                            <div className="flex gap-2 items-center">
+                                <span>
+                                    {demande.Nom_positionneur || "Formateur"} souhaite se positionner
+                                </span>
+
                                 <button
                                     className="btn btn-xs btn-success"
-                                    onClick={() => positionnerDemande(demande.id_demande)}
+                                    onClick={() => approuverPositionnement(demande.id_demande)}
                                 >
-                                    Se positionner
+                                    ✅
                                 </button>
-                            ) : (
-                                "En cours de décision"
-                            )}
-                        </td>
+
+                                <button
+                                    className="btn btn-xs btn-error"
+                                    onClick={() => refuserPositionnement(demande.id_demande)}
+                                >
+                                    ❌
+                                </button>
+                            </div>
+                        ) : demande.id_technicien ? (
+                            <div className="flex gap-2 items-center">
+                                <span>✅ Confirmé</span>
+                                <button className="btn btn-xs btn-info">💬</button>
+                            </div>
+                        ) : (
+                            "En cours de décision"
+                        )}
                     </tr>
                 ))}
             </tbody>

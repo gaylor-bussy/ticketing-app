@@ -40,61 +40,67 @@ db.getConnection((err, connection) => {
 // ##############################################################################################################
 
 router.post("/invite/request", (req, res) => {
-  if (!req.body.Description||!req.body.Num_AFPA_invite||!req.body.Nom_AFPA_invite||!req.body.Prenom_AFPA_invite||!req.body.id_status){
-return res.status(404).json({
-          message: "Saisie incorrect.",
-        });
+  if (
+    !req.body.Description ||
+    !req.body.Num_AFPA_invite ||
+    !req.body.Nom_AFPA_invite ||
+    !req.body.Prenom_AFPA_invite ||
+    !req.body.id_status
+  ) {
+    return res.status(404).json({
+      message: "Saisie incorrect.",
+    });
   }
-   if (!/^\d+$/.test(req.body.Num_AFPA_invite)) {
-        return res.status(400).json({
-            message: " Doit contenir uniquement des chiffres."
-        });
-    }
-  const sql =
-    `
-        INSERT INTO demande (
-            id_demande,
-            Description,
-            Date_creation,
-            Num_AFPA_invite,
-            Nom_AFPA_invite,
-            Prenom_AFPA_invite,
-            realise,
-            id_status,
-            id_demandeur,
-            id_technicien,
-            id_positionneur,
-            Date_realise
-        )
-        VALUES (
-        NULL,
-        "` +
-    req.body.Description +
-    `",
-        "` +
-    moment().format("YYYY-MM-DD,HH:mm:ss ") +
-    `",
-        "` +
-    req.body.Num_AFPA_invite +
-    `",
-        "` +
-    req.body.Nom_AFPA_invite +
-    `",
-        "` +
-    req.body.Prenom_AFPA_invite +
-    `",
-        "0",
-        "` +
-    req.body.id_status +
-    `",
-        NULL,
-        "8",
-        NULL,
-        NULL
-              )
-    `;
 
-  db.query(sql, (err, result) => {
+  if (!/^\d+$/.test(req.body.Num_AFPA_invite)) {
+    return res.status(400).json({
+      message: " Doit contenir uniquement des chiffres.",
+    });
+  }
+
+  const sql = `
+    INSERT INTO demande (
+      id_demande,
+      Description,
+      Date_creation,
+      Num_AFPA_invite,
+      Nom_AFPA_invite,
+      Prenom_AFPA_invite,
+      realise,
+      id_status,
+      id_demandeur,
+      id_technicien,
+      id_positionneur,
+      Date_realise
+    )
+    VALUES (
+      NULL,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      NULL,
+      ?,
+      NULL,
+      NULL
+    )
+  `;
+
+  const values = [
+    req.body.Description,
+    moment().format("YYYY-MM-DD HH:mm:ss"),
+    req.body.Num_AFPA_invite,
+    req.body.Nom_AFPA_invite,
+    req.body.Prenom_AFPA_invite,
+    0,
+    req.body.id_status,
+    8,
+  ];
+
+  db.query(sql, values, (err, result) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -105,28 +111,13 @@ return res.status(404).json({
       });
     }
 
-    const sql2 = `
-    SELECT id_demande
-    FROM demande
-    WHERE Num_AFPA_invite = ?
-    ORDER BY id_demande DESC
-    LIMIT 1
-  `;
-
-    db.query(sql2, [req.body.Num_AFPA_invite], (err, results) => {
-      if (err) {
-        console.error(err);
-
-        return res.status(500).json({
-          message: "Erreur serveur.",
-        });
-      }
-
-      return res.json(results);
-    });
+    return res.status(200).json([
+      {
+        id_demande: result.insertId,
+      },
+    ]);
   });
 });
-
 // ##############################################################################################################
 // #                                         requete invité                                                     #
 // ##############################################################################################################
@@ -150,49 +141,42 @@ router.get("/invite/request/:NbRequest", (req, res) => {
 const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
-  
-  const { Nom, Prenom, Num_AFPA, Password, id_user } = req.body;
+  const { Nom, Prenom, Num_AFPA, Password } = req.body;
   console.log(req.body);
-  if (!req.body.Nom||!req.body.Prenom||!req.body.Num_AFPA||!Password){
-return res.status(404).json({
-          message: "Saisie incorrect.",
-        });
+  if (!Nom || !Prenom || !Num_AFPA || !Password) {
+    return res.status(400).json({
+      message: "Saisie incorrect.",
+    });
   }
-  const hash = await bcrypt.hash(Password, 10);
-  
-    if (!/^\d+$/.test(req.body.Num_AFPA)) {
-        return res.status(400).json({
-            message: " Doit contenir uniquement des chiffres."
-        });
-    }
-  const sql =
-    `
-            INSERT INTO user_(
-            id_user,
-            Nom,
-            Prenom,
-            Num_AFPA,
-            Password,
-            id_role)
-            VALUES (
-            NULL,
-            "` +
-    req.body.Nom +
-    `",
-            "` +
-    req.body.Prenom +
-    `",
-            "` +
-    req.body.Num_AFPA +
-    `",
-            "` +
-    hash +
-    `",
-            "4"
-            )
-        `;
 
-  db.query(sql, (err, results) => {
+  if (!/^\d+$/.test(Num_AFPA)) {
+    return res.status(400).json({
+      message: " Doit contenir uniquement des chiffres.",
+    });
+  }
+
+  const hash = await bcrypt.hash(Password, 10);
+  const sql = `
+    INSERT INTO user_ (
+      id_user,
+      Nom,
+      Prenom,
+      Num_AFPA,
+      Password,
+      id_role
+    )
+    VALUES (
+      NULL,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?
+    )
+  `;
+  const values = [Nom, Prenom, Num_AFPA, hash, 4];
+
+  db.query(sql, values, (err, results) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -225,16 +209,16 @@ const jwt = require("jsonwebtoken");
 
 router.post("/login", (req, res) => {
   const { Num_AFPA, Password } = req.body;
-  if (!Num_AFPA||!Password){
-return res.status(404).json({
-          message: "Saisie incorrect.",
-        });
-  }  
+  if (!Num_AFPA || !Password) {
+    return res.status(400).json({
+      message: "Saisie incorrect.",
+    });
+  }
   if (!/^\d+$/.test(Num_AFPA)) {
-        return res.status(400).json({
-            message: " Doit contenir uniquement des chiffres."
-        });
-    }
+    return res.status(400).json({
+      message: " Doit contenir uniquement des chiffres.",
+    });
+  }
   const sql = `
         SELECT *
         FROM user_
@@ -281,8 +265,8 @@ return res.status(404).json({
           id_user: user.id_user,
           Num_AFPA: user.Num_AFPA,
           id_role: user.id_role,
-          nom: user.Prenom,
-          prenom: user.Nom,
+          nom: user.Nom,
+          prenom: user.Prenom,
           nom_role: user.Nom_role,
         },
         process.env.JWT_SECRET,
@@ -340,7 +324,7 @@ router.get("/dashboard/complet", auth, (req, res) => {
   if (id_role === 4) {
     console.log(id_role);
 
-    return res.status(500).json({ message: "Accès refusé." });
+    return res.status(403).json({ message: "Accès refusé." });
   }
 
   const sql = `
@@ -364,7 +348,7 @@ router.get("/dashboard/formateur_technicien", auth, (req, res) => {
   if (id_role !== 2 && id_role !== 3) {
     console.log(id_role);
 
-    return res.status(500).json({ message: "Accès refusé" });
+    return res.status(403).json({ message: "Accès refusé" });
   }
 
   const sql = `
@@ -395,16 +379,13 @@ router.put("/dashboard/complet/update/:id_demande",auth,function (req, res, next
       return res.status(403).json({ message: "Accès refusé." });
     }
       if (!req.body.id_status){
-return res.status(404).json({
+return res.status(400).json({
           message: "Saisie incorrect.",
         });
   }
-    const sql =
-      " UPDATE demande SET id_status = " +
-      req.body.id_status +
-      " WHERE id_demande=? ";
+    const sql = " UPDATE demande SET id_status = ? WHERE id_demande=? ";
 
-    db.query(sql, [id], (err, result) => {
+    db.query(sql, [req.body.id_status, id], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
 
@@ -419,27 +400,6 @@ return res.status(404).json({
           code: "OK",
         });
       }
-      const sql =
-        `UPDATE demande SET id_status = " ` +
-        req.body.id_status +
-        `" WHERE id_demande=?`;
-
-      db.query(sql, [id], (err, result) => {
-        if (err) {
-          console.error("Erreur SQL :", err);
-
-          return res.status(500).json({
-            message: err.message,
-            code: err.code,
-            sqlMessage: err.sqlMessage,
-          });
-        } else {
-          return res.status(200).json({
-            message: "Status modifié.",
-            code: "OK",
-          });
-        }
-      });
     });
   },
 );
@@ -455,14 +415,11 @@ router.put(
     const id = req.params.id_demande;
     const id_role = req.user.id_role;
     if (id_role !== 1) {
-      return res.status(500).json({ message: "Accès refusé." });
+      return res.status(403).json({ message: "Accès refusé." });
     }
-    const sql =
-      ` UPDATE demande SET realise = 1, Date_realise = "` +
-      moment().format("YYYY-MM-DD,h:mm:ss") +
-      `" WHERE id_demande=? `;
+    const sql = ` UPDATE demande SET realise = 1, Date_realise = ? WHERE id_demande=? `;
 
-    db.query(sql, [id], (err, result) => {
+    db.query(sql, [moment().format("YYYY-MM-DD HH:mm:ss"), id], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
 
@@ -492,37 +449,29 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   if (id_role === 4) {
     console.log(id_role);
 
-    return res.status(500).json({ message: "Accès refusé." });
+    return res.status(403).json({ message: "Accès refusé." });
   }
      if (!req.body.Message){
-return res.status(404).json({
+return res.status(400).json({
           message: "Saisie incorrect.",
         })};
-  const sql =
-    `
-        INSERT INTO message(
-            id_message,
-            Date_heure,
-            Message,
-            id_demande
-           
-        )
-        VALUES (
-        NULL,
-        "` +
-    moment().format("YYYY-MM-DD,h:mm:ss ") +
-    `",
-        "` +
-    req.body.Message +
-    `",
-        "` +
-    id +
-    `"
-  )
-    `;
-  const sql2 = ` SELECT * FROM message `;
+  const sql = `
+    INSERT INTO message (
+      id_message,
+      Date_heure,
+      Message,
+      id_demande
+    )
+    VALUES (
+      NULL,
+      ?,
+      ?,
+      ?
+    )
+  `;
+  const sql2 = ` SELECT * FROM message WHERE id_demande = ? `;
 
-  db.query(sql, (err, results) => {
+  db.query(sql, [moment().format("YYYY-MM-DD HH:mm:ss"), req.body.Message, id], (err, results) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -532,13 +481,14 @@ return res.status(404).json({
         sqlMessage: err.sqlMessage,
       });
     }
-  });
-  db.query(sql2, (err, results) => {
-    if (err) {
-      console.error("Erreur lors de la requête :", err.message);
-      return res.status(500).json({ message: "Erreur serveur." });
-    }
-    res.json(results);
+
+    db.query(sql2, [id], (err, results) => {
+      if (err) {
+        console.error("Erreur lors de la requête :", err.message);
+        return res.status(500).json({ message: "Erreur serveur." });
+      }
+      res.json(results);
+    });
   });
 });
 
@@ -549,44 +499,36 @@ return res.status(404).json({
 router.post("/dashboard/utilisateur/request", auth, (req, res) => {
   const id_user = req.user.id_user;
   if (!req.body.Description||!req.body.id_status){
-return res.status(404).json({
+return res.status(400).json({
           message: "Saisie incorrect.",
         });
   }
-  const sql =
-    `
-        INSERT INTO demande (
-            id_demande,
-            Description,
-            Date_creation,
-            realise,
-            id_status,
-            id_demandeur,
-            id_technicien,
-            id_positionneur,
-            Date_realise
-        )
-        VALUES (
-        NULL,
-        "` +
-    req.body.Description +
-    `",
-        "` +
-    moment().format("YYYY-MM-DD ") +
-    `",
-        "0",
-        "` +
-    req.body.id_status +
-    `",
-        "` +
-    id_user +
-    `" ,
-        NULL,
-        NULL,
-        NULL)
-    `;
+  const sql = `
+    INSERT INTO demande (
+      id_demande,
+      Description,
+      Date_creation,
+      realise,
+      id_status,
+      id_demandeur,
+      id_technicien,
+      id_positionneur,
+      Date_realise
+    )
+    VALUES (
+      NULL,
+      ?,
+      ?,
+      ?,
+      ?,
+      ?,
+      NULL,
+      NULL,
+      NULL
+    )
+  `;
 
-  db.query(sql, [id_user], (err, result) => {
+  db.query(sql, [req.body.Description, moment().format("YYYY-MM-DD HH:mm:ss"), 0, req.body.id_status, id_user], (err, result) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -615,19 +557,16 @@ router.put(
     const id_user = req.params.id_user;
     const id_role = req.user.id_role;
     if (id_role !== 1) {
-      return res.status(500).json({ message: "Accès refusé." });
+      return res.status(403).json({ message: "Accès refusé." });
     }
       if (!req.body.id_role){
-return res.status(404).json({
+return res.status(400).json({
           message: "Saisie incorrect.",
         });
   }
-    const sql =
-      ` UPDATE user_ SET id_role = "` +
-      req.body.id_role +
-      `" WHERE id_user=?  `;
+    const sql = ` UPDATE user_ SET id_role = ? WHERE id_user=?  `;
 
-    db.query(sql, [id_user], (err, result) => {
+    db.query(sql, [req.body.id_role, id_user], (err, result) => {
       if (err) {
         console.error("Erreur SQL :", err);
 
@@ -657,7 +596,7 @@ router.delete(
     const id_user = req.params.id_user;
     const id_role = req.user.id_role;
     if (id_role !== 1) {
-      return res.status(500).json({ message: "Accès refusé." });
+      return res.status(403).json({ message: "Accès refusé." });
     }
     const sql = ` DELETE FROM user_  WHERE id_user=?  `;
 
@@ -689,7 +628,7 @@ router.delete(
     const id_demande = req.params.id_demande;
     const id_role = req.user.id_role;
     if (id_role !== 1) {
-      return res.status(500).json({ message: "Accès refusé." });
+      return res.status(403).json({ message: "Accès refusé." });
     }
     const sql = ` DELETE FROM demande WHERE id_demande=?  `;
 
@@ -724,7 +663,7 @@ router.put(
     const id_role = req.user.id_role;
     const id_user = req.user.id_user;
     if (id_role !== 2) {
-      return res.status(500).json({ message: "Accès refusé." });
+      return res.status(403).json({ message: "Accès refusé." });
     }
     const sql = ` UPDATE demande SET id_positionneur = ? WHERE id_demande=? `;
     db.query(sql, [id_user, id_demande], (err, result) => {
@@ -756,10 +695,8 @@ router.put(
   function (req, res, next) {
     const id_demande = req.params.id_demande;
     const id_role = req.user.id_role;
-    const id_user = req.user.id_user;
-
     if (id_role !== 1) {
-      return res.status(500).json({ message: "Accès refusé." });
+      return res.status(403).json({ message: "Accès refusé." });
     }
     const sql = ` UPDATE demande SET id_technicien = id_positionneur WHERE id_demande=? `;
     db.query(sql, [id_demande], (err, result) => {

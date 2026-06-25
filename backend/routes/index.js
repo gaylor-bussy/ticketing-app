@@ -40,67 +40,61 @@ db.getConnection((err, connection) => {
 // ##############################################################################################################
 
 router.post("/invite/request", (req, res) => {
-  if (
-    !req.body.Description ||
-    !req.body.Num_AFPA_invite ||
-    !req.body.Nom_AFPA_invite ||
-    !req.body.Prenom_AFPA_invite ||
-    !req.body.id_status
-  ) {
-    return res.status(404).json({
-      message: "Saisie incorrecte.",
-    });
+  if (!req.body.Description||!req.body.Num_AFPA_invite||!req.body.Nom_AFPA_invite||!req.body.Prenom_AFPA_invite||!req.body.id_status){
+return res.status(404).json({
+          message: "Saisie incorrect.",
+        });
   }
+   if (!/^\d+$/.test(req.body.Num_AFPA_invite)) {
+        return res.status(400).json({
+            message: " Doit contenir uniquement des chiffres."
+        });
+    }
+  const sql =
+    `
+        INSERT INTO demande (
+            id_demande,
+            Description,
+            Date_creation,
+            Num_AFPA_invite,
+            Nom_AFPA_invite,
+            Prenom_AFPA_invite,
+            realise,
+            id_status,
+            id_demandeur,
+            id_technicien,
+            id_positionneur,
+            Date_realise
+        )
+        VALUES (
+        NULL,
+        "` +
+    req.body.Description +
+    `",
+        "` +
+    moment().format("YYYY-MM-DD,HH:mm:ss ") +
+    `",
+        "` +
+    req.body.Num_AFPA_invite +
+    `",
+        "` +
+    req.body.Nom_AFPA_invite +
+    `",
+        "` +
+    req.body.Prenom_AFPA_invite +
+    `",
+        "0",
+        "` +
+    req.body.id_status +
+    `",
+        NULL,
+        "8",
+        NULL,
+        NULL
+              )
+    `;
 
-  if (!/^\d+$/.test(req.body.Num_AFPA_invite)) {
-    return res.status(400).json({
-      message: "Le numéro AFPA doit contenir uniquement des chiffres.",
-    });
-  }
-
-  const sql = `
-    INSERT INTO demande (
-      id_demande,
-      Description,
-      Date_creation,
-      Num_AFPA_invite,
-      Nom_AFPA_invite,
-      Prenom_AFPA_invite,
-      realise,
-      id_status,
-      id_demandeur,
-      id_technicien,
-      id_positionneur,
-      Date_realise
-    )
-    VALUES (
-      NULL,
-      ?,
-      ?,
-      ?,
-      ?,
-      ?,
-      ?,
-      ?,
-      NULL,
-      ?,
-      NULL,
-      NULL
-    )
-  `;
-
-  const values = [
-    req.body.Description,
-    moment().format("YYYY-MM-DD HH:mm:ss"),
-    req.body.Num_AFPA_invite,
-    req.body.Nom_AFPA_invite,
-    req.body.Prenom_AFPA_invite,
-    0,
-    req.body.id_status,
-    8,
-  ];
-
-  db.query(sql, values, (err, result) => {
+  db.query(sql, (err, result) => {
     if (err) {
       console.error("Erreur SQL :", err);
 
@@ -112,12 +106,12 @@ router.post("/invite/request", (req, res) => {
     }
 
     const sql2 = `
-      SELECT id_demande
-      FROM demande
-      WHERE Num_AFPA_invite = ?
-      ORDER BY id_demande DESC
-      LIMIT 1
-    `;
+    SELECT id_demande
+    FROM demande
+    WHERE Num_AFPA_invite = ?
+    ORDER BY id_demande DESC
+    LIMIT 1
+  `;
 
     db.query(sql2, [req.body.Num_AFPA_invite], (err, results) => {
       if (err) {

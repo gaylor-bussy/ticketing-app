@@ -18,109 +18,33 @@ export default function Dashboard_Manager({userr}) {
     const recherche = search.toLowerCase();
 
     return (
-      demande.id_demande.toString().includes(recherche) ||
-      demande.Description?.toLowerCase().includes(recherche)
-    );
-  });
+        <section className="flex flex-col p-6">
+            <section className="flex justify-between items-center mb-4">
+                <Search_Bar search={search} setSearch={setSearch} />
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+                <button className="btn btn-success" onClick={() => setShowModal(true)}>
+                    Ajouter une demande
+                </button>
+            </section>
 
-    fetch("http://localhost:3000/dashboard/complet", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Demandes formateur :", data);
-        setDemandes(data);
-      })
-      .catch((error) => console.error(error));
-  }, []);
+            <Table_Demandes
+                demandes={demandesFiltrees}
+                isManageur={true}
+                ouvrirModalPriorite={ouvrirModalPriorite}
+                approuverPositionnement={approuverPositionnement}
+                refuserPositionnement={refuserPositionnement}
+                idUser={user?.id_user}
+            />
 
-  const ajouterDemande = async () => {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
-      "http://localhost:3000/dashboard/utilisateur/request",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          Description: description,
-          id_status: priorite,
-        }),
-      },
-    );
-
-    const data = await response.json();
-    console.log(data);
-
-    setDescription("");
-    setPriorite("2");
-    setShowModal(false);
-    window.location.reload();
-  };
-
-  const positionnerDemande = async (id_demande) => {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
-      `http://localhost:3000/dashboard/complet/uptade/posionnement/${id_demande}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    const data = await response.json();
-    console.log(data);
-
-    if (response.ok) {
-      setDemandes((prevDemandes) =>
-        prevDemandes.map((demande) =>
-          demande.id_demande === id_demande
-            ? {
-                ...demande,
-                id_positionneur: user.id_user,
-                Nom_positionneur: user.Nom,
-                Prenom_positionneur: user.Prenom,
-              }
-            : demande,
-        ),
-      );
-    }
-  };
-
-  const ouvrirModalPriorite = (demande) => {
-    setDemandeSelectionnee(demande);
-    setNouvellePriorite(String(demande.id_status));
-    setShowPrioriteModal(true);
-  };
-
-  const validerChangementPriorite = async () => {
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(
-      `http://localhost:3000/dashboard/complet/update/${demandeSelectionnee.id_demande}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          id_status: nouvellePriorite,
-        }),
-      },
-    );
+            <Modal_Add_Demande
+                showModal={showModal}
+                setShowModal={setShowModal}
+                description={description}
+                setDescription={setDescription}
+                priorite={priorite}
+                setPriorite={setPriorite}
+                ajouterDemande={ajouterDemande}
+            />
 
     const data = await response.json();
     console.log(data);

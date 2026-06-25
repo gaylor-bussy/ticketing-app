@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Inscription() {
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const [typeMessage, setTypeMessage] = useState("");
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -13,11 +15,10 @@ export default function Inscription() {
       Num_AFPA: formData.get("num_afpa"),
       Nom: formData.get("nom"),
       Prenom: formData.get("prenom"),
-      Password : formData.get("password"),
+      Password: formData.get("password"),
     };
 
     console.log(user);
-    
 
     const url = "http://localhost:3000/register";
     try {
@@ -30,18 +31,45 @@ export default function Inscription() {
       });
       const resultat = await reponse.json();
       if (!reponse.ok) {
+        setTypeMessage("error");
+        setMessage(resultat.message);
         return;
       }
-      setTimeout(() => {
-        navigate("/connexion");
-      }, 500);
+      setTypeMessage("success");
+      setMessage(resultat.message);
+      // setTimeout(() => {
+      //   navigate("/connexion");
+      // }, 500);
     } catch (erreur) {
+      setTypeMessage("error");
+      setMessage("Impossible de contacter le serveur.");
       console.error(erreur.message);
     }
   }
   return (
     <section className="flex justify-center h-full items-center">
       <form action="" className="flex flex-col w-xl" onSubmit={handleSubmit}>
+        {message ? (
+          <div
+            role="alert"
+            className={`alert ${typeMessage === "success" ? "alert-success" : "alert-error"}`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{message}</span>
+          </div>
+        ) : null}
         <div className="my-4">
           <label className="text-white text-2xl" htmlFor="">
             Numéro AFPA :
@@ -51,6 +79,7 @@ export default function Inscription() {
             placeholder="Saisissez votre numéro AFPA"
             className="input input-success w-full placeholder:text-xl h-12"
             name="num_afpa"
+            required
           />
         </div>
         <div className="my-4">
@@ -62,6 +91,7 @@ export default function Inscription() {
             placeholder="Saisissez votre Nom"
             className="input input-success w-full placeholder:text-xl h-12"
             name="nom"
+            required
           />
         </div>
         <div className="my-4">
@@ -73,6 +103,7 @@ export default function Inscription() {
             placeholder="Saisissez votre Prénom"
             className="input input-success w-full placeholder:text-xl h-12"
             name="prenom"
+            required
           />
         </div>
         <div className="my-4">
@@ -84,6 +115,7 @@ export default function Inscription() {
             placeholder="Saisissez votre mot de passe"
             className="input input-success w-full placeholder:text-xl h-12"
             name="password"
+            required
           />
         </div>
         <button

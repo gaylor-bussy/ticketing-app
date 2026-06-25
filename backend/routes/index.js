@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port: 3307,
+  // port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -40,6 +40,11 @@ db.getConnection((err, connection) => {
 // ##############################################################################################################
 
 router.post("/invite/request", (req, res) => {
+  if (!req.body.Description||!req.body.Num_AFPA_invite||!req.body.Nom_AFPA_invite||!req.body.Prenom_AFPA_invite||!req.body.id_status){
+return res.status(404).json({
+          message: "saisi incorrect",
+        });
+  }
   const sql =
     `
         INSERT INTO demande (
@@ -140,11 +145,15 @@ router.get("/invite/request/:NbRequest", (req, res) => {
 const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
+  
   const { Nom, Prenom, Num_AFPA, Password, id_user } = req.body;
   console.log(req.body);
-  // try {
   const hash = await bcrypt.hash(Password, 10);
-
+  if (!req.body.Nom||!req.body.Prenom||!req.body.id_status||!req.body.Num_AFPA||!hash){
+return res.status(404).json({
+          message: "saisi incorrect",
+        });
+  }
   const sql =
     `
             INSERT INTO user_(
@@ -205,7 +214,11 @@ const jwt = require("jsonwebtoken");
 
 router.post("/login", (req, res) => {
   const { Num_AFPA, Password } = req.body;
-
+  if (!Num_AFPA||!Password){
+return res.status(404).json({
+          message: "saisi incorrect",
+        });
+  }
   const sql = `
         SELECT *
         FROM user_
@@ -359,15 +372,17 @@ LEFT JOIN user_
 // #                                         route modif status                                                #
 // ##############################################################################################################
 
-router.put(
-  "/dashboard/complet/update/:id_demande",
-  auth,
-  function (req, res, next) {
+router.put("/dashboard/complet/update/:id_demande",auth,function (req, res, next) {
     const id = req.params.id_demande;
     const id_role = req.user.id_role;
     if (id_role !== 1 && id_role !== 2 && id_role !== 3) {
       return res.status(403).json({ error: "Accès refusé" });
     }
+      if (!req.body.id_status){
+return res.status(404).json({
+          message: "saisi incorrect",
+        });
+  }
     const sql =
       " UPDATE demande SET id_status = " +
       req.body.id_status +
@@ -463,6 +478,10 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
 
     return res.status(500).json({ error: "Accès refusé" });
   }
+     if (!req.body.Message){
+return res.status(404).json({
+          message: "saisi incorrect",
+        })};
   const sql =
     `
         INSERT INTO message(
@@ -513,6 +532,11 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
 
 router.post("/dashboard/utilisateur/request", auth, (req, res) => {
   const id_user = req.user.id_user;
+  if (!req.body.Description||!req.body.id_status){
+return res.status(404).json({
+          message: "saisi incorrect",
+        });
+  }
   const sql =
     `
         INSERT INTO demande (
@@ -577,6 +601,11 @@ router.put(
     if (id_role !== 1) {
       return res.status(500).json({ error: "Accès refusé" });
     }
+      if (!req.body.id_role){
+return res.status(404).json({
+          message: "saisi incorrect",
+        });
+  }
     const sql =
       ` UPDATE user_ SET id_role = "` +
       req.body.id_role +

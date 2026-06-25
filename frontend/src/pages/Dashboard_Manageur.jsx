@@ -3,7 +3,7 @@ import Table_Demandes from "../components/Table_Demandes";
 import Search_Bar from "../components/Search_Bar";
 import Modal_Add_Demande from "../components/Modal_Add_Demande";
 
-export default function Dashboard_Manager() {
+export default function Dashboard_Manager({userr}) {
     const [demandes, setDemandes] = useState([]);
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);
@@ -192,53 +192,6 @@ export default function Dashboard_Manager() {
             );
         }
     };
-
-
-    return (
-        <section className="flex flex-col p-6">
-            <section className="flex justify-between items-center mb-4">
-                <Search_Bar search={search} setSearch={setSearch} />
-
-                <button className="btn btn-success" onClick={() => setShowModal(true)}>
-                    Ajouter une demande
-                </button>
-            </section>
-
-            <Table_Demandes
-                demandes={demandesFiltrees}
-                isManageur={true}
-                ouvrirModalPriorite={ouvrirModalPriorite}
-                approuverPositionnement={approuverPositionnement}
-                refuserPositionnement={refuserPositionnement}
-                idUser={user?.id_user}
-            />
-
-            <Modal_Add_Demande
-                showModal={showModal}
-                setShowModal={setShowModal}
-                description={description}
-                setDescription={setDescription}
-                priorite={priorite}
-                setPriorite={setPriorite}
-                ajouterDemande={ajouterDemande}
-            />
-
-    const data = await response.json();
-    console.log(data);
-
-    if (response.ok) {
-      setDemandes((prev) =>
-        prev.map((demande) =>
-          demande.id_demande === demandeSelectionnee.id_demande
-            ? { ...demande, id_status: Number(nouvellePriorite) }
-            : demande,
-        ),
-      );
-
-      setShowPrioriteModal(false);
-      setDemandeSelectionnee(null);
-    }
-  };
 
   return (
     <section className="flex flex-col p-6">

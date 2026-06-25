@@ -14,7 +14,6 @@ router.use(
   }),
 );
 
-
 const db = mysql.createPool({
   host: "localhost", // Adresse du serveur MySQL
   user: "root", // Nom d'utilisateur MySQL
@@ -135,7 +134,6 @@ router.post("/register", async (req, res) => {
   // try {
   const hash = await bcrypt.hash(Password, 10);
 
-
   const sql =
     `
             INSERT INTO user_(
@@ -170,8 +168,7 @@ router.post("/register", async (req, res) => {
         code: "OK",
       });
     }
-  })
-
+  });
 });
 // ############################################################################################################################################################################################################################
 //                                          ##############################################################################################################
@@ -196,13 +193,13 @@ router.post("/login", (req, res) => {
   const sql = `
         SELECT *
         FROM user_
+        INNER JOIN role ON user_.id_role = role.id_role
         WHERE Num_AFPA = ?
     `;
-  const sql2 =
-    `
+  const sql2 = `
             SELECT* FROM demande WHERE Num_AFPA_invite = ?
     
-  `
+  `;
 
   db.query(sql, [Num_AFPA], async (err, result) => {
     if (err) {
@@ -226,45 +223,43 @@ router.post("/login", (req, res) => {
     }
     const sql2 = ` UPDATE demande SET id_demandeur =  ? WHERE Num_AFPA_invite =? AND id_demandeur IS NULL `;
 
-
-    db.query(
-      sql2,
-      [user.id_user, user.Num_AFPA],
-      (err, updateResult) => {
-        if (err) {
-          console.error(
-            "Erreur lors de l'association des demandes :",
-            err
-          );
-        } else {
-          console.log(
-            `${updateResult.affectedRows} demande(s) associée(s) au compte ${user.id_user}`
-          );
-        }
-        const token = jwt.sign(
-          {
-            id_user: user.id_user,
-            Num_AFPA: user.Num_AFPA,
-            id_role: user.id_role,
-          },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "24h",
-          },
+    db.query(sql2, [user.id_user, user.Num_AFPA], (err, updateResult) => {
+      if (err) {
+        console.error("Erreur lors de l'association des demandes :", err);
+      } else {
+        console.log(
+          `${updateResult.affectedRows} demande(s) associée(s) au compte ${user.id_user}`,
         );
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      }
+      const token = jwt.sign(
+        {
+          id_user: user.id_user,
+          Num_AFPA: user.Num_AFPA,
+          id_role: user.id_role,
+          nom: user.Prenom,
+          prenom: user.Nom,
+          nom_role: user.Nom_role,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "24h",
+        },
+      );
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        return res.status(200).json({
-          message: "connexion réussi",
-          token: token,
-          user: {
-            id_user: user.id_user,
-            Num_AFPA: user.Num_AFPA,
-            id_role: user.id_role,
-          },
-        });
-      })
-
+      return res.status(200).json({
+        message: "connexion réussi",
+        token: token,
+        user: {
+          id_user: user.id_user,
+          Num_AFPA: user.Num_AFPA,
+          id_role: user.id_role,
+          nom: user.Nom,
+          prenom: user.Prenom,
+          nom_role: user.Nom_role,
+        },
+      });
+    });
   });
 });
 
@@ -352,20 +347,14 @@ router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, ne
   const sql =
   `UPDATE demande SET id_status = " `+req.body.id_status +`" WHERE id_demande=?` ;
 
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
-
-      return res.status(500).json({
-        message: err.message,
-        code: err.code,
-        sqlMessage: err.sqlMessage,
-      });
-    } else {
-      return res.status(200).json({
-        message: "status modifié",
-        code: "OK",
-      });
+router.put(
+  "/dashboard/complet/update/:id_demande",
+  auth,
+  function (req, res, next) {
+    const id = req.params.id_demande;
+    const id_role = req.user.id_role;
+    if (id_role !== 1) {
+      return res.status(500).json({ error: "Accès refusé" });
     }
     const sql =
     `UPDATE demande SET id_status = " `+req.body.id_status +`" WHERE id_demande=?` ;
@@ -385,6 +374,27 @@ router.put("/dashboard/complet/update/:id_demande", auth, function (req, res, ne
           code: "OK",
         });
       }
+      const sql =
+        " UPDATE demande SET id_status = " +
+        req.body.id_status +
+        " WHERE id_demande=? ";
+
+      db.query(sql, [id], (err, result) => {
+        if (err) {
+          console.error("Erreur SQL :", err);
+
+          return res.status(500).json({
+            message: err.message,
+            code: err.code,
+            sqlMessage: err.sqlMessage,
+          });
+        } else {
+          return res.status(200).json({
+            message: "status modifié",
+            code: "OK",
+          });
+        }
+      });
     });
   },
   );
@@ -403,9 +413,9 @@ router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req,
   const sql =
     ` UPDATE demande SET realise = 1, Date_realise = "` +moment().format("YYYY-MM-DD,h:mm:ss") +`" WHERE id_demande=? `;
 
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
+    db.query(sql, [id], (err, result) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
 
       return res.status(500).json({
         message: err.message,
@@ -419,13 +429,11 @@ router.put("/dashboard/complet/update/realise/:id_demande", auth, function (req,
       });
     }
   },
-  );
-});
+);
 
 // ##############################################################################################################
 // #                                             messagerie instantané                                          #
 // ##############################################################################################################
-
 
 router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   const id = req.params.id_demande;
@@ -465,7 +473,7 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
         sqlMessage: err.sqlMessage,
       });
     }
-  })
+  });
   db.query(sql2, (err, results) => {
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
@@ -473,10 +481,7 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
     }
     res.json(results);
   });
-
-}
-
-);
+});
 
 // ##############################################################################################################
 // #                                             Request utilisateur page                                       #
@@ -540,9 +545,17 @@ router.put("/dashboard/complet/update/role/:id_user", auth, function (req, res, 
   const sql =
     ` UPDATE user_ SET id_role = "` + req.body.id_role + `" WHERE id_user=?  `;
 
-  db.query(sql, [id_user], (err, result) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
+router.put(
+  "/dashboard/complet/update/role/:id_user",
+  auth,
+  function (req, res, next) {
+    const id_user = req.params.id_user;
+    const id_role = req.user.id_role;
+    if (id_role !== 1) {
+      return res.status(500).json({ error: "Accès refusé" });
+    }
+    const sql =
+      ` UPDATE user_ SET id_role = ` + req.body.id_role + ` WHERE id_user=?  `;
 
       return res.status(500).json({
         message: err.message,
@@ -556,8 +569,7 @@ router.put("/dashboard/complet/update/role/:id_user", auth, function (req, res, 
       });
     }
   },
-  );
-});
+);
 // ##############################################################################################################
 // #                                             supprime utilisateur                                           #
 // ##############################################################################################################
@@ -571,9 +583,9 @@ router.delete("/dashboard/complet/delete/utilisateur/:id_user", auth, function (
   const sql =
     ` DELETE FROM user_  WHERE id_user=?  `;
 
-  db.query(sql, [id_user], (err, result) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
+    db.query(sql, [id_user], (err, result) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
 
       return res.status(500).json({
         message: err.message,
@@ -587,8 +599,7 @@ router.delete("/dashboard/complet/delete/utilisateur/:id_user", auth, function (
       });
     }
   },
-  );
-});
+);
 // ##############################################################################################################
 // #                                             supprime demande                                               #
 // ##############################################################################################################
@@ -601,9 +612,9 @@ router.delete("/dashboard/complet/delete/demande/:id_demande", auth, function (r
   const sql =
     ` DELETE FROM demande WHERE id_demande=?  `;
 
-  db.query(sql, [id_demande], (err, result) => {
-    if (err) {
-      console.error("Erreur SQL :", err);
+    db.query(sql, [id_demande], (err, result) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
 
       return res.status(500).json({
         message: err.message,
@@ -617,8 +628,7 @@ router.delete("/dashboard/complet/delete/demande/:id_demande", auth, function (r
       });
     }
   },
-  );
-});
+);
 
 // ##############################################################################################################
 // #                                             positionnement formateur                                       #
@@ -651,13 +661,19 @@ router.put("/dashboard/complet/uptade/posionnement/:id_demande", auth, function 
       });
     }
   },
-  );
-});
+);
 
 // ##############################################################################################################
 // #                                             validation manageur                                            #
 // ##############################################################################################################
 
+router.put(
+  "/dashboard/complet/uptade/validation/:id_demande",
+  auth,
+  function (req, res, next) {
+    const id_demande = req.params.id_demande;
+    const id_role = req.user.id_role;
+    const id_user = req.user.id_user;
 
 router.put("/dashboard/complet/uptade/validation/:id_demande", auth, function (req, res, next) {
   const id_demande = req.params.id_demande;

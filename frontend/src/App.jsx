@@ -36,11 +36,11 @@ function App() {
       <main className="bg-zinc-700">
         <Routes>
           <Route path="/" element={<HomePage setIdDemandeInvitee={setIdDemandeInvitee} setNextPage={setNextPage} nextPage={nextPage}/>} />
-          <Route path="/dashboard/user" element={<Dashboard_User />} />
+          <Route path="/dashboard/user" element={<Dashboard_User user={user}/>} />
           <Route path="/inscription" element={<Inscription />} />
           <Route path="/connexion" element={<Connexion user={user} setUser={setUser} token={token} setToken={setToken} />} />
-          <Route path="/dashboard/manageur" element={<Dashboard_Manageur />} />
-          <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur />} />
+          <Route path="/dashboard/manageur" element={<Dashboard_Manageur user={user}/>} />
+          <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur user={user}/>} />
           <Route path="/consulter-demande" element={<Consulter_Demande setNumDemande={setNumDemande}/>} />
           <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
           <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande}/>} />

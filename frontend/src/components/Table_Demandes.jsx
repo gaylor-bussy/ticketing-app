@@ -48,8 +48,8 @@ export default function Table_Demandes({
 }) {
 
     return (
-        <table className="table table-zebra">
-            <thead>
+        <table className="table table-zebra bg-green-200">
+            <thead className="bg-zinc-800 text-white text-xl">
                 <tr>
                     <th>Numéro demande</th>
                     <th>Description</th>
@@ -60,7 +60,7 @@ export default function Table_Demandes({
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody className="text-xl">
                 {demandes.map((demande) => (
                     <tr key={demande.id_demande}>
                         <td>{demande.id_demande}</td>

@@ -42,6 +42,7 @@ export default function Table_Demandes({
     isManageur = false,
     positionnerDemande,
     ouvrirModalPriorite,
+    ouvrirMessagerie,
     idUser,
     approuverPositionnement,
     refuserPositionnement,
@@ -96,37 +97,71 @@ export default function Table_Demandes({
                             )}
                         </td>
 
-                        {isManageur && demande.id_positionneur && !demande.id_technicien ? (
-                            <div className="flex gap-2 items-center">
-                                <span>
-                                    {demande.Nom_positionneur || "Formateur"} souhaite se positionner
-                                </span>
+                        <td>
+                            {isManageur && demande.id_positionneur && demande.id_positionneur !== 1 && !demande.id_technicien ? (
+                                <div className="flex items-center gap-2">
+                                    <span>
+                                        {demande.Prenom_positionneur} {demande.Nom_positionneur}
+                                    </span>
 
+                                    <button
+                                        className="btn btn-xs btn-success"
+                                        onClick={() => approuverPositionnement(demande.id_demande)}
+                                    >
+                                        ✅
+                                    </button>
+
+                                    <button
+                                        className="btn btn-xs btn-error"
+                                        onClick={() => refuserPositionnement(demande.id_demande)}
+                                    >
+                                        ❌
+                                    </button>
+                                </div>
+                            ) : isManageur && demande.id_technicien ? (
+                                <div className="flex items-center gap-2">
+                                    <span>
+                                        ✅ {demande.id_technicien === 1
+                                            ? "Technicien"
+                                            : `${demande.Prenom_positionneur} ${demande.Nom_positionneur}`}
+                                    </span>
+
+                                    <button
+                                        className="btn btn-xs btn-info"
+                                        title="Messagerie"
+                                        onClick={() => ouvrirMessagerie(demande)}
+                                    >
+                                        💬
+                                    </button>
+                                </div>
+                            ) : isFormateur && !demande.id_positionneur ? (
                                 <button
                                     className="btn btn-xs btn-success"
-                                    onClick={() => approuverPositionnement(demande.id_demande)}
+                                    onClick={() => positionnerDemande(demande.id_demande)}
                                 >
-                                    ✅
+                                    Se positionner
                                 </button>
+                            ) : isFormateur && demande.id_positionneur === idUser && !demande.id_technicien ? (
+                                <span>Vous êtes positionné, en attente de validation</span>
+                            ) : isFormateur && demande.id_technicien === idUser ? (
+                                <div className="flex items-center gap-2">
+                                    <span>✅ Vous êtes confirmé</span>
 
-                                <button
-                                    className="btn btn-xs btn-error"
-                                    onClick={() => refuserPositionnement(demande.id_demande)}
-                                >
-                                    ❌
-                                </button>
-                            </div>
-                        ) : demande.id_technicien ? (
-                            <div className="flex gap-2 items-center">
-                                <span>✅ Confirmé</span>
-                                <button className="btn btn-xs btn-info">💬</button>
-                            </div>
-                        ) : (
-                            "En cours de décision"
-                        )}
+                                    <button
+                                        className="btn btn-xs btn-info"
+                                        title="Messagerie"
+                                        onClick={() => ouvrirMessagerie(demande)}
+                                    >
+                                        💬
+                                    </button>
+                                </div>
+                            ) : (
+                                <span>En attente</span>
+                            )}
+                        </td>
                     </tr>
                 ))}
             </tbody>
-        </table>
+        </table >
     );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Table_Demandes from "../components/Table_Demandes";
 import Search_Bar from "../components/Search_Bar";
 import Modal_Add_Demande from "../components/Modal_Add_Demande";
+import Modal_Messagerie from "../components/Modal_Messagerie";
 
 export default function Dashboard_Manager({ userr }) {
     const [demandes, setDemandes] = useState([]);
@@ -13,6 +14,14 @@ export default function Dashboard_Manager({ userr }) {
     const [showPrioriteModal, setShowPrioriteModal] = useState(false);
     const [demandeSelectionnee, setDemandeSelectionnee] = useState(null);
     const [nouvellePriorite, setNouvellePriorite] = useState("2");
+    const [showMessagerie, setShowMessagerie] = useState(false);
+    const [demandeMessagerie, setDemandeMessagerie] = useState(null);
+
+    const ouvrirMessagerie = (demande) => {
+        setDemandeMessagerie(demande);
+        setShowMessagerie(true);
+    };
+
 
     const demandesFiltrees = demandes.filter((demande) => {
         const recherche = search.toLowerCase();
@@ -187,7 +196,7 @@ export default function Dashboard_Manager({ userr }) {
             setDemandes((prev) =>
                 prev.map((demande) =>
                     demande.id_demande === id_demande
-                        ? { ...demande, id_positionneur: null }
+                        ? { ...demande, id_positionneur: 1 }
                         : demande
                 )
             );
@@ -211,10 +220,10 @@ export default function Dashboard_Manager({ userr }) {
             <Table_Demandes
                 demandes={demandesFiltrees}
                 isManageur={true}
-                positionnerDemande={positionnerDemande}
                 ouvrirModalPriorite={ouvrirModalPriorite}
                 approuverPositionnement={approuverPositionnement}
                 refuserPositionnement={refuserPositionnement}
+                ouvrirMessagerie={ouvrirMessagerie}
                 idUser={user?.id_user}
             />
 
@@ -261,6 +270,11 @@ export default function Dashboard_Manager({ userr }) {
                     </div>
                 </dialog>
             )}
+            <Modal_Messagerie
+                open={showMessagerie}
+                setOpen={setShowMessagerie}
+                demande={demandeMessagerie}
+            />
         </section>
     );
 }

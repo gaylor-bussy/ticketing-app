@@ -512,7 +512,17 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
       ?
     )
   `;
-  const sql2 = ` SELECT * FROM message WHERE id_demande = ? `;
+  const sql2 =
+  //  ` SELECT * FROM message WHERE id_demande = ? `;
+`  SELECT *
+FROM demande
+INNER JOIN message
+    ON demande.id_demande = message.id_message
+INNER JOIN envoi
+    ON message.id_message = envoi.id_user
+INNER JOIN user_
+    ON envoi.id_user = user_.id_user
+    WHERE id_demande = ? `
 
   db.query(
     sql,

@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-
 function DescriptionCell({ description = "" }) {
     const [open, setOpen] = useState(false);
 
@@ -46,8 +45,8 @@ export default function Table_Demandes({
     idUser,
     approuverPositionnement,
     refuserPositionnement,
+    validerRealisation,
 }) {
-
     return (
         <table className="table table-zebra bg-green-200">
             <thead className="bg-zinc-800 text-white text-xl">
@@ -58,13 +57,14 @@ export default function Table_Demandes({
                     <th>Demandeur</th>
                     <th>Priorité</th>
                     <th>Prise en charge</th>
+                    {isManageur && <th>Réalisé</th>}
                 </tr>
             </thead>
 
             <tbody className="text-xl">
                 {demandes.map((demande) => (
                     <tr key={demande.id_demande}>
-                        <td>{demande.id_demande}</td>
+                        <td >{demande.id_demande}</td>
 
                         <DescriptionCell description={demande.Description} />
 
@@ -72,9 +72,9 @@ export default function Table_Demandes({
                             {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
                         </td>
 
-                        <td>{demande.Nom || demande.id_demandeur || "Invité"}</td>
+                        <td >{demande.Nom || demande.id_demandeur || "Invité"}</td>
 
-                        <td >
+                        <td>
                             {demande.id_status === 1 && (
                                 <span className="badge badge-error">Urgent</span>
                             )}
@@ -98,7 +98,15 @@ export default function Table_Demandes({
                         </td>
 
                         <td>
-                            {isManageur && demande.id_positionneur && demande.id_positionneur !== 1 && !demande.id_technicien ? (
+                            {demande.realise === 1 ? (
+                                <span className="badge badge-success">
+                                    ✅ Réalisé le{" "}
+                                    {new Date(demande.Date_realise).toLocaleDateString("fr-FR")}
+                                </span>
+                            ) : isManageur &&
+                                demande.id_positionneur &&
+                                demande.id_positionneur !== 1 &&
+                                !demande.id_technicien ? (
                                 <div className="flex items-center gap-2">
                                     <span>
                                         {demande.Prenom_positionneur} {demande.Nom_positionneur}
@@ -106,14 +114,18 @@ export default function Table_Demandes({
 
                                     <button
                                         className="btn btn-xs btn-success"
-                                        onClick={() => approuverPositionnement(demande.id_demande)}
+                                        onClick={() =>
+                                            approuverPositionnement(demande.id_demande)
+                                        }
                                     >
                                         ✅
                                     </button>
 
                                     <button
                                         className="btn btn-xs btn-error"
-                                        onClick={() => refuserPositionnement(demande.id_demande)}
+                                        onClick={() =>
+                                            refuserPositionnement(demande.id_demande)
+                                        }
                                     >
                                         ❌
                                     </button>
@@ -121,7 +133,8 @@ export default function Table_Demandes({
                             ) : isManageur && demande.id_technicien ? (
                                 <div className="flex items-center gap-2">
                                     <span>
-                                        ✅ {demande.id_technicien === 1
+                                        ✅{" "}
+                                        {demande.id_technicien === 1
                                             ? "Technicien"
                                             : `${demande.Prenom_positionneur} ${demande.Nom_positionneur}`}
                                     </span>
@@ -137,11 +150,15 @@ export default function Table_Demandes({
                             ) : isFormateur && !demande.id_positionneur ? (
                                 <button
                                     className="btn btn-xs btn-success"
-                                    onClick={() => positionnerDemande(demande.id_demande)}
+                                    onClick={() =>
+                                        positionnerDemande(demande.id_demande)
+                                    }
                                 >
                                     Se positionner
                                 </button>
-                            ) : isFormateur && demande.id_positionneur === idUser && !demande.id_technicien ? (
+                            ) : isFormateur &&
+                                demande.id_positionneur === idUser &&
+                                !demande.id_technicien ? (
                                 <span>Vous êtes positionné, en attente de validation</span>
                             ) : isFormateur && demande.id_technicien === idUser ? (
                                 <div className="flex items-center gap-2">
@@ -159,9 +176,28 @@ export default function Table_Demandes({
                                 <span>En attente</span>
                             )}
                         </td>
+
+                        {isManageur && (
+                            <td>
+                                {demande.realise === 1 ? (
+                                    <span className="badge badge-success">
+                                        ✅ Réalisé
+                                    </span>
+                                ) : (
+                                    <button
+                                        className="btn btn-xs btn-success"
+                                        onClick={() =>
+                                            validerRealisation(demande.id_demande)
+                                        }
+                                    >
+                                        Valider
+                                    </button>
+                                )}
+                            </td>
+                        )}
                     </tr>
                 ))}
             </tbody>
-        </table >
+        </table>
     );
 }

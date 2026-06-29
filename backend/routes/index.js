@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  // port: 3307,
+  //port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -57,7 +57,7 @@ router.post("/invite/request", (req, res) => {
       message: " Doit contenir uniquement des chiffres.",
     });
   }
-  
+
 
   const sql = `
     INSERT INTO demande (
@@ -125,8 +125,8 @@ router.get("/invite/request/:NbRequest", (req, res) => {
   const NbRequest = req.params.NbRequest;
   const sql = "SELECT * FROM demande WHERE id_demande = ?";
   db.query(sql, [NbRequest], (err, results) => {
-    if (results.length === 0){
-        return res.status(409).json({
+    if (results.length === 0) {
+      return res.status(409).json({
         message: "Cette demande n'existe pas.",
       });
 
@@ -148,14 +148,14 @@ const bcrypt = require("bcrypt");
 router.post("/register", async (req, res) => {
   const { Nom, Prenom, Num_AFPA, Password } = req.body;
 
- 
+
   if (!Nom || !Prenom || !Num_AFPA || !Password) {
     return res.status(400).json({
       message: "Saisie incorrecte.",
     });
   }
 
-  
+
   if (!/^\d+$/.test(Num_AFPA)) {
     return res.status(400).json({
       message: "Le numéro AFPA doit contenir uniquement des chiffres.",
@@ -359,10 +359,16 @@ router.get("/dashboard/complet", auth, (req, res) => {
     return res.status(403).json({ message: "Accès refusé." });
   }
 
-  const sql = `
-SELECT *
+ const sql = `
+SELECT
+    demande.*,
+    user_.Nom AS Nom_positionneur,
+    user_.Prenom AS Prenom_positionneur
 FROM demande
+LEFT JOIN user_
+    ON demande.id_positionneur = user_.id_user
 `;
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
@@ -793,7 +799,7 @@ router.put(
 
     const sql = `
       UPDATE demande
-      SET id_positionneur = NULL
+      SET id_positionneur = 1
       WHERE id_demande = ?
     `;
 

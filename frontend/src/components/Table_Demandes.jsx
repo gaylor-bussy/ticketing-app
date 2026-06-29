@@ -111,12 +111,8 @@ export default function Table_Demandes({
                                         ✅
                                     </button>
 
-                                    <button
-                                        className="btn btn-xs btn-error"
-                                        onClick={() => refuserPositionnement(demande.id_demande)}
-                                    >
-                                        ❌
-                                    </button>
+                                    
+                                    
                                 </div>
                             ) : isManageur && demande.id_technicien ? (
                                 <div className="flex items-center gap-2">

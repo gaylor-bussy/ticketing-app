@@ -16,6 +16,8 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
     const chargerMessages = async () => {
         const token = localStorage.getItem("token");
 
+        console.log("ID demande modal :", demande.id_demande);
+
         const response = await fetch(
             `http://localhost:3000/dashboard/complet/messagerie/${demande.id_demande}`,
             {
@@ -25,6 +27,8 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
                 },
             }
         );
+
+        console.log("Status GET messages :", response.status);
 
         const data = await response.json();
         console.log("Messages chargés :", data);
@@ -79,11 +83,10 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
                                     className={`chat ${isMoi ? "chat-end" : "chat-start"}`}
                                 >
                                     <div
-                                        className={`chat-bubble ${
-                                            isMoi
-                                                ? "chat-bubble-primary"
-                                                : "chat-bubble-success"
-                                        }`}
+                                        className={`chat-bubble ${isMoi
+                                            ? "chat-bubble-primary"
+                                            : "chat-bubble-success"
+                                            }`}
                                     >
                                         {msg.Message}
                                     </div>

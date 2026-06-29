@@ -512,7 +512,17 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
       ?
     )
   `;
-  const sql2 = ` SELECT * FROM message WHERE id_demande = ? `;
+  const sql2 =
+  //  ` SELECT * FROM message WHERE id_demande = ? `;
+`  SELECT *
+FROM demande
+INNER JOIN message
+    ON demande.id_demande = message.id_message
+INNER JOIN envoi
+    ON message.id_message = envoi.id_user
+INNER JOIN user_
+    ON envoi.id_user = user_.id_user
+    WHERE id_demande = ? `
 
   db.query(
     sql,
@@ -783,7 +793,7 @@ router.put(
 );
 
 // ##############################################################################################################
-// #                                             refus manageur                                            #
+// #                                             refus manageur                                                 #
 // ##############################################################################################################
 
 router.put(
@@ -848,5 +858,45 @@ router.put(
 //     res.json(results);
 //   });
 // });
+// #                                             Graphique                                                      #
+// ##############################################################################################################
+
+router.get("/dashboard/manageur/graphique",  (req, res) => {
+  const id_role = req.user.id_role;
+  if (id_role !== 1 ) {
+    console.log(id_role);
+
+    return res.status(403).json({ message: "Accès refusé" });
+  }
+
+  const sql = `
+SELECT
+    MONTH(Date_creation) AS mois,
+    COUNT(id_demande) AS Nombre demande,
+    SUM(CASE WHEN realise = 1 THEN 1 ELSE 0 END) AS realisees
+FROM demande
+GROUP BY MONTH(Date_creation)
+ORDER BY MONTH(Date_creation);
+`;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ message: "Erreur serveur." });
+    }
+    res.json(results);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;

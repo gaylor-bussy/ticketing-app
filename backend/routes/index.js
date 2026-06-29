@@ -487,7 +487,7 @@ router.put(
 router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
-  const { id_message, Date_heure, Message, id_demande } = req.body;
+  const { id_message, Date_heure, Message } = req.body;
   if (id_role === 4) {
     console.log(id_role);
 
@@ -513,16 +513,8 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
     )
   `;
   const sql2 =
-  //  ` SELECT * FROM message WHERE id_demande = ? `;
-`  SELECT *
-FROM demande
-INNER JOIN message
-    ON demande.id_demande = message.id_message
-INNER JOIN envoi
-    ON message.id_message = envoi.id_user
-INNER JOIN user_
-    ON envoi.id_user = user_.id_user
-    WHERE id_demande = ? `
+     ` SELECT * FROM message WHERE id_demande = ? `;
+
 
   db.query(
     sql,
@@ -831,39 +823,12 @@ router.put(
 );
 
 // ##############################################################################################################
-// #                                         lecture messagerie                                                  #
+//                                     Graphique                                                                  #
 // ##############################################################################################################
 
-// router.get("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
-//   const id_demande = req.params.id_demande;
-//   const id_role = req.user.id_role;
-
-//   if (id_role === 4) {
-//     return res.status(403).json({ message: "Accès refusé." });
-//   }
-
-//   const sql = `
-//     SELECT *
-//     FROM message
-//     WHERE id_demande = ?
-//     ORDER BY Date_heure ASC
-//   `;
-
-//   db.query(sql, [id_demande], (err, results) => {
-//     if (err) {
-//       console.error("Erreur SQL lecture messagerie :", err);
-//       return res.status(500).json({ message: "Erreur serveur." });
-//     }
-
-//     res.json(results);
-//   });
-// });
-// #                                             Graphique                                                      #
-// ##############################################################################################################
-
-router.get("/dashboard/manageur/graphique",  (req, res) => {
+router.get("/dashboard/manageur/graphique", (req, res) => {
   const id_role = req.user.id_role;
-  if (id_role !== 1 ) {
+  if (id_role !== 1) {
     console.log(id_role);
 
     return res.status(403).json({ message: "Accès refusé" });

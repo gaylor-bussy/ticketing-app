@@ -4,10 +4,14 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
     const [messages, setMessages] = useState([]);
     const [nouveauMessage, setNouveauMessage] = useState("");
 
+    const user = JSON.parse(localStorage.getItem("user"));
+    const nomComplet = `${user?.prenom} ${user?.nom}`;
+
     useEffect(() => {
         if (!open || !demande) return;
+
         chargerMessages();
-    }, [open, demande]);
+    }, [open, demande?.id_demande]);
 
     const chargerMessages = async () => {
         const token = localStorage.getItem("token");
@@ -23,6 +27,8 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
         );
 
         const data = await response.json();
+        console.log("Messages chargés :", data);
+
         setMessages(Array.isArray(data) ? data : []);
     };
 
@@ -30,9 +36,6 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
         if (!nouveauMessage.trim()) return;
 
         const token = localStorage.getItem("token");
-        const user = JSON.parse(localStorage.getItem("user"));
-
-        const messageAvecNom = `${user?.prenom} ${user?.nom} : ${nouveauMessage}`;
 
         const response = await fetch(
             `http://localhost:3000/dashboard/complet/messagerie/${demande.id_demande}`,
@@ -43,7 +46,7 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    Message: messageAvecNom,
+                    Message: `${nomComplet} : ${nouveauMessage}`,
                 }),
             }
         );
@@ -67,17 +70,30 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
                     {messages.length === 0 ? (
                         <p>Aucun message.</p>
                     ) : (
-                        messages.map((msg) => (
-                            <div key={msg.id_message} className="chat chat-start">
-                                <div className="chat-bubble chat-bubble-info">
-                                    {msg.Message}
-                                </div>
+                        messages.map((msg) => {
+                            const isMoi = msg.Message?.startsWith(nomComplet);
 
-                                <div className="chat-footer opacity-60 text-xs">
-                                    {new Date(msg.Date_heure).toLocaleString("fr-FR")}
+                            return (
+                                <div
+                                    key={msg.id_message}
+                                    className={`chat ${isMoi ? "chat-end" : "chat-start"}`}
+                                >
+                                    <div
+                                        className={`chat-bubble ${
+                                            isMoi
+                                                ? "chat-bubble-primary"
+                                                : "chat-bubble-success"
+                                        }`}
+                                    >
+                                        {msg.Message}
+                                    </div>
+
+                                    <div className="chat-footer opacity-60 text-xs">
+                                        {new Date(msg.Date_heure).toLocaleString("fr-FR")}
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
 

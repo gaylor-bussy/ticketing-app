@@ -2,197 +2,197 @@ import { useState, useEffect } from "react";
 import Table_Demandes from "../components/Table_Demandes";
 import Search_Bar from "../components/Search_Bar";
 import Modal_Add_Demande from "../components/Modal_Add_Demande";
+import { Link } from "react-router-dom";
 
-export default function Dashboard_Manager({userr}) {
-    const [demandes, setDemandes] = useState([]);
-    const [search, setSearch] = useState("");
-    const [showModal, setShowModal] = useState(false);
-    const [description, setDescription] = useState("");
-    const [priorite, setPriorite] = useState("2");
-    const user = JSON.parse(localStorage.getItem("user"));
-    const [showPrioriteModal, setShowPrioriteModal] = useState(false);
-    const [demandeSelectionnee, setDemandeSelectionnee] = useState(null);
-    const [nouvellePriorite, setNouvellePriorite] = useState("2");
+export default function Dashboard_Manager({ userr }) {
+  const [demandes, setDemandes] = useState([]);
+  const [search, setSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [description, setDescription] = useState("");
+  const [priorite, setPriorite] = useState("2");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const [showPrioriteModal, setShowPrioriteModal] = useState(false);
+  const [demandeSelectionnee, setDemandeSelectionnee] = useState(null);
+  const [nouvellePriorite, setNouvellePriorite] = useState("2");
 
-    const demandesFiltrees = demandes.filter((demande) => {
-        const recherche = search.toLowerCase();
+  const demandesFiltrees = demandes.filter((demande) => {
+    const recherche = search.toLowerCase();
 
-        return (
-            demande.id_demande.toString().includes(recherche) ||
-            demande.Description?.toLowerCase().includes(recherche)
-        );
-    });
+    return (
+      demande.id_demande.toString().includes(recherche) ||
+      demande.Description?.toLowerCase().includes(recherche)
+    );
+  });
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
-        fetch("http://localhost:3000/dashboard/complet", {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log("Demandes formateur :", data);
-                setDemandes(data);
-            })
-            .catch((error) => console.error(error));
-    }, []);
+    fetch("http://localhost:3000/dashboard/complet", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Demandes formateur :", data);
+        setDemandes(data);
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
-    const ajouterDemande = async () => {
-        const token = localStorage.getItem("token");
+  const ajouterDemande = async () => {
+    const token = localStorage.getItem("token");
 
-        const response = await fetch(
-            "http://localhost:3000/dashboard/utilisateur/request",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    Description: description,
-                    id_status: priorite,
-                }),
-            },
-        );
+    const response = await fetch(
+      "http://localhost:3000/dashboard/utilisateur/request",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          Description: description,
+          id_status: priorite,
+        }),
+      },
+    );
 
-        const data = await response.json();
-        console.log(data);
+    const data = await response.json();
+    console.log(data);
 
-        setDescription("");
-        setPriorite("2");
-        setShowModal(false);
-        window.location.reload();
-    };
+    setDescription("");
+    setPriorite("2");
+    setShowModal(false);
+    window.location.reload();
+  };
 
-    const positionnerDemande = async (id_demande) => {
-        const token = localStorage.getItem("token");
+  const positionnerDemande = async (id_demande) => {
+    const token = localStorage.getItem("token");
 
-        const response = await fetch(
-            `http://localhost:3000/dashboard/complet/uptade/posionnement/${id_demande}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
-        );
+    const response = await fetch(
+      `http://localhost:3000/dashboard/complet/uptade/posionnement/${id_demande}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
-        
-        const data = await response.json();
-        console.log(data);
+    const data = await response.json();
+    console.log(data);
 
-        if (response.ok) {
-            setDemandes((prevDemandes) =>
-                prevDemandes.map((demande) =>
-                    demande.id_demande === id_demande
-                        ? {
-                            ...demande,
-                            id_positionneur: user.id_user,
-                            Nom_positionneur: user.Nom,
-                            Prenom_positionneur: user.Prenom,
-                        }
-                        : demande,
-                ),
-            );
-        }
-    };
+    if (response.ok) {
+      setDemandes((prevDemandes) =>
+        prevDemandes.map((demande) =>
+          demande.id_demande === id_demande
+            ? {
+                ...demande,
+                id_positionneur: user.id_user,
+                Nom_positionneur: user.Nom,
+                Prenom_positionneur: user.Prenom,
+              }
+            : demande,
+        ),
+      );
+    }
+  };
 
-    const ouvrirModalPriorite = (demande) => {
-        setDemandeSelectionnee(demande);
-        setNouvellePriorite(String(demande.id_status));
-        setShowPrioriteModal(true);
-    };
+  const ouvrirModalPriorite = (demande) => {
+    setDemandeSelectionnee(demande);
+    setNouvellePriorite(String(demande.id_status));
+    setShowPrioriteModal(true);
+  };
 
-    const validerChangementPriorite = async () => {
-        const token = localStorage.getItem("token");
+  const validerChangementPriorite = async () => {
+    const token = localStorage.getItem("token");
 
-        const response = await fetch(
-            `http://localhost:3000/dashboard/complet/update/${demandeSelectionnee.id_demande}`,
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    id_status: nouvellePriorite,
-                }),
-            },
-        );
+    const response = await fetch(
+      `http://localhost:3000/dashboard/complet/update/${demandeSelectionnee.id_demande}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id_status: nouvellePriorite,
+        }),
+      },
+    );
 
-        const data = await response.json();
-        console.log(data);
+    const data = await response.json();
+    console.log(data);
 
-        if (response.ok) {
-            setDemandes((prev) =>
-                prev.map((demande) =>
-                    demande.id_demande === demandeSelectionnee.id_demande
-                        ? { ...demande, id_status: Number(nouvellePriorite) }
-                        : demande,
-                ),
-            );
+    if (response.ok) {
+      setDemandes((prev) =>
+        prev.map((demande) =>
+          demande.id_demande === demandeSelectionnee.id_demande
+            ? { ...demande, id_status: Number(nouvellePriorite) }
+            : demande,
+        ),
+      );
 
-            setShowPrioriteModal(false);
-            setDemandeSelectionnee(null);
-        }
-    };
+      setShowPrioriteModal(false);
+      setDemandeSelectionnee(null);
+    }
+  };
 
-    const approuverPositionnement = async (id_demande) => {
-        const token = localStorage.getItem("token");
+  const approuverPositionnement = async (id_demande) => {
+    const token = localStorage.getItem("token");
 
-        const response = await fetch(
-            `http://localhost:3000/dashboard/complet/uptade/validation/${id_demande}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+    const response = await fetch(
+      `http://localhost:3000/dashboard/complet/uptade/validation/${id_demande}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
-        const data = await response.json();
-        console.log(data);
+    const data = await response.json();
+    console.log(data);
 
-        if (response.ok) {
-            setDemandes((prev) =>
-                prev.map((demande) =>
-                    demande.id_demande === id_demande
-                        ? { ...demande, id_technicien: demande.id_positionneur }
-                        : demande
-                )
-            );
-        }
-    };
+    if (response.ok) {
+      setDemandes((prev) =>
+        prev.map((demande) =>
+          demande.id_demande === id_demande
+            ? { ...demande, id_technicien: demande.id_positionneur }
+            : demande,
+        ),
+      );
+    }
+  };
 
-    const refuserPositionnement = async (id_demande) => {
-        const token = localStorage.getItem("token");
+  const refuserPositionnement = async (id_demande) => {
+    const token = localStorage.getItem("token");
 
-        const response = await fetch(
-            `http://localhost:3000/dashboard/complet/uptade/refus/${id_demande}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            }
-        );
+    const response = await fetch(
+      `http://localhost:3000/dashboard/complet/uptade/refus/${id_demande}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
-        const data = await response.json();
-        console.log(data);
+    const data = await response.json();
+    console.log(data);
 
-        if (response.ok) {
-            setDemandes((prev) =>
-                prev.map((demande) =>
-                    demande.id_demande === id_demande
-                        ? { ...demande, id_positionneur: null }
-                        : demande
-                )
-            );
-        }
-    };
+    if (response.ok) {
+      setDemandes((prev) =>
+        prev.map((demande) =>
+          demande.id_demande === id_demande
+            ? { ...demande, id_positionneur: null }
+            : demande,
+        ),
+      );
+    }
+  };
 
   return (
     <section className="flex flex-col p-6">
@@ -202,10 +202,18 @@ export default function Dashboard_Manager({userr}) {
       </div>
       <section className="flex justify-between items-center mb-4">
         <Search_Bar search={search} setSearch={setSearch} />
-
-        <button className="btn btn-success" onClick={() => setShowModal(true)}>
-          Ajouter une demande
-        </button>
+        <div className="">
+          <Link>
+            <button className="btn btn-success mr-4">Graphique</button>
+          </Link>
+          <button className="btn btn-success mr-4">Exporter en excel</button>
+          <button
+            className="btn btn-success"
+            onClick={() => setShowModal(true)}
+          >
+            Ajouter une demande
+          </button>
+        </div>
       </section>
 
       <Table_Demandes

@@ -90,6 +90,7 @@ export default function HomePage({
       }
       console.log(resultat.results);
       setIdDemandeInvitee(resultat.results);
+      const idDemandeInviteLS = localStorage.setItem("id_demande_invite",resultat.results);
     } catch (erreur) {
       console.error(erreur.message);
     }

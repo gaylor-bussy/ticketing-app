@@ -3,6 +3,8 @@ import Table_Demandes from "../components/Table_Demandes";
 import Search_Bar from "../components/Search_Bar";
 import Modal_Add_Demande from "../components/Modal_Add_Demande";
 import Modal_Messagerie from "../components/Modal_Messagerie";
+import * as XLSX from "xlsx";
+import { Link } from "react-router-dom";
 
 export default function Dashboard_Manager({ userr }) {
     const [demandes, setDemandes] = useState([]);
@@ -16,7 +18,14 @@ export default function Dashboard_Manager({ userr }) {
     const [nouvellePriorite, setNouvellePriorite] = useState("2");
     const [showMessagerie, setShowMessagerie] = useState(false);
     const [demandeMessagerie, setDemandeMessagerie] = useState(null);
+    const exportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(demandes);
+    const workbook = XLSX.utils.book_new();
 
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Demandes");
+
+    XLSX.writeFile(workbook, "demandes.xlsx");
+};
     const ouvrirMessagerie = (demande) => {
         setDemandeMessagerie(demande);
         setShowMessagerie(true);
@@ -211,7 +220,14 @@ export default function Dashboard_Manager({ userr }) {
             </div>
             <section className="flex justify-between items-center mb-4">
                 <Search_Bar search={search} setSearch={setSearch} />
-
+                <button className="btn btn-success" onClick={exportExcel}>
+                Export Excel
+                </button>
+                <Link to={"/dashboard/manageur/graphique"}>
+                <button className="btn btn-success" >
+                Graphique
+                </button>
+                </Link>
                 <button className="btn btn-success" onClick={() => setShowModal(true)}>
                     Ajouter une demande
                 </button>

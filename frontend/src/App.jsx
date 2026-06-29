@@ -47,7 +47,7 @@ function App() {
           <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
           <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande}/>} />
           <Route path="/demand-invite-show2" element={<ShowDemandinvite2 />} />
-          <Route path="/dashboard/manageur/graphique" element={<Graphique/>} />
+          <Route path="/dashboard/manageur/graphique" element={<Graphique userr={user}/>} />
         </Routes>
       </main>
       <Footer user={user}/>

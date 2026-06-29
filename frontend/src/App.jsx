@@ -15,7 +15,7 @@ import Dashboard_Formateur from "./pages/Dashboard_Formateur";
 import Consulter_Demande from "./pages/Consulter_Demande";
 import Result_Demand from "./pages/Result_Demand";
 import ShowDemandinvite from "./pages/ShowDemandInvite";
-
+import Graphique from "./components/Graphique";
 
 function App() {
   const [idDemandeInvitee, setIdDemandeInvitee] = useState("");
@@ -44,6 +44,7 @@ function App() {
           <Route path="/consulter-demande" element={<Consulter_Demande setNumDemande={setNumDemande}/>} />
           <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
           <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande}/>} />
+          <Route path="/dashboard/manageur/graphique" element={<Graphique/>} />
         </Routes>
       </main>
       <Footer user={user}/>

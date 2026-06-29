@@ -17,6 +17,7 @@ import Result_Demand from "./pages/Result_Demand";
 import ShowDemandinvite from "./pages/ShowDemandInvite";
 import ShowDemandinvite2 from "./pages/ShowDemandInvite2";
 
+import Graphique from "./components/Graphique";
 
 function App() {
   const [idDemandeInvitee, setIdDemandeInvitee] = useState("");
@@ -46,6 +47,7 @@ function App() {
           <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
           <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande}/>} />
           <Route path="/demand-invite-show2" element={<ShowDemandinvite2 />} />
+          <Route path="/dashboard/manageur/graphique" element={<Graphique/>} />
         </Routes>
       </main>
       <Footer user={user}/>

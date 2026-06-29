@@ -513,7 +513,7 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
     )
   `;
   const sql2 =
-     ` SELECT * FROM message WHERE id_demande = ? `;
+    ` SELECT * FROM message WHERE id_demande = ? `;
 
 
   db.query(
@@ -539,6 +539,21 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
       });
     },
   );
+});
+
+router.get("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
+  const id_demande = req.params.id_demande;
+
+  const sql2 = `SELECT * FROM message WHERE id_demande = ?`;
+
+  db.query(sql2, [id_demande], (err, results) => {
+    if (err) {
+      console.error("Erreur SQL lecture messages :", err);
+      return res.status(500).json({ message: "Erreur serveur." });
+    }
+
+    res.json(results);
+  });
 });
 
 // ##############################################################################################################
@@ -826,7 +841,7 @@ router.put(
 //                                     Graphique                                                                  #
 // ##############################################################################################################
 
-router.get("/dashboard/manageur/graphique",auth, (req, res) => {
+router.get("/dashboard/manageur/graphique", auth, (req, res) => {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
   if (id_role !== 1) {
@@ -844,7 +859,7 @@ FROM demande
 GROUP BY MONTH(Date_creation)
 ORDER BY MONTH(Date_creation);
 `;
-  db.query(sql,[id], (err, results) => {
+  db.query(sql, [id], (err, results) => {
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
       return res.status(500).json({ message: "Erreur serveur." });

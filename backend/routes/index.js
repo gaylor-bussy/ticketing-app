@@ -359,7 +359,7 @@ router.get("/dashboard/complet", auth, (req, res) => {
     return res.status(403).json({ message: "Accès refusé." });
   }
 
- const sql = `
+  const sql = `
 SELECT
     demande.*,
     user_.Nom AS Nom_positionneur,
@@ -819,5 +819,34 @@ router.put(
     });
   }
 );
+
+// ##############################################################################################################
+// #                                         lecture messagerie                                                  #
+// ##############################################################################################################
+
+// router.get("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
+//   const id_demande = req.params.id_demande;
+//   const id_role = req.user.id_role;
+
+//   if (id_role === 4) {
+//     return res.status(403).json({ message: "Accès refusé." });
+//   }
+
+//   const sql = `
+//     SELECT *
+//     FROM message
+//     WHERE id_demande = ?
+//     ORDER BY Date_heure ASC
+//   `;
+
+//   db.query(sql, [id_demande], (err, results) => {
+//     if (err) {
+//       console.error("Erreur SQL lecture messagerie :", err);
+//       return res.status(500).json({ message: "Erreur serveur." });
+//     }
+
+//     res.json(results);
+//   });
+// });
 
 module.exports = router;

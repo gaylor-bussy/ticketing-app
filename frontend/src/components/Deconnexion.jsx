@@ -13,7 +13,7 @@ export default function Deconnexion({ user, setUser, token, setToken }) {
   return (
     <div className="flex">
       <button
-        className="btn btn-success m-2 text-black h-14 text-2xl "
+        className="btn btn-success m-2 text-black h-10 text-sm lg:h-14 lg:text-2xl"
         onClick={handleDeconnexion}
       >
         Deconnexion

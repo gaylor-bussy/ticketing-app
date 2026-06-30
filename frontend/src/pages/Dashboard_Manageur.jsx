@@ -246,13 +246,16 @@ export default function Dashboard_Manager({ userr }) {
     };
 
     return (
-        <section className="flex flex-col p-6">
-            <div className="flex justify-between">
+        
+        <section className="flex flex-col p-4 md:p-6">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center mb-6">
                 <p className="text-white mb-6">Bonjour {userr.nom}</p>
                 <p className="text-white">Role du compte : {userr.nom_role}</p>
             </div>
-            <section className="flex justify-between items-center mb-4">
+            <section className="flex flex-col xl:flex-row gap-4 mb-4">
+                
                 <Search_Bar search={search} setSearch={setSearch} />
+                <div className="grid grid-cols-2 gap-2 md:flex">
                 <Link to={"/dashboard/manageur/gestion_utilisateur"}>
                 <button className="btn btn-success" >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-up" viewBox="0 0 16 16">
@@ -283,6 +286,7 @@ export default function Dashboard_Manager({ userr }) {
 </svg>
                     Ajouter une demande
                 </button>
+                </div>
             </section>
 
             <Table_Demandes

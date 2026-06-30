@@ -14,7 +14,16 @@ export default function Header({
 
   return (
     <header className="flex bg-zinc-800 p-4 justify-between">
-      <img src="/public/images/logo-AFPA-final.png" alt="" className="h-52"  />
+      <img
+        src="/images/Logo-AFPA-final.png"
+        alt="Logo AFPA"
+        className="hidden sm:block h-52"
+    />
+      <img
+        src="/images/Logo_AFPA_final_moitie.png"
+        alt="Logo AFPA"
+        className="block sm:hidden h-20"
+    />
 
       {user === null ? (
         <>

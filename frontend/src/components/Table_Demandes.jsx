@@ -81,10 +81,10 @@ export default function Table_Demandes({
                             </td>
 
                             <td>
-                                { demande.Nom_demandeur === null ? `${demande.Nom_AFPA_invite} ${demande.Prenom_AFPA_invite} (invité)` : `${demande.Nom_demandeur} ${demande.Prenom_demandeur}`}
+                                {demande.Nom_demandeur === null ? `${demande.Nom_AFPA_invite} ${demande.Prenom_AFPA_invite} (invité)` : `${demande.Nom_demandeur} ${demande.Prenom_demandeur}`}
                             </td>
 
-                            <td className="hidden xl:table-cell">
+                            <td className="hidden xl:table-cell whitespace-nowrap">
                                 {demande.id_status === 1 && (
                                     <span className="badge badge-error">Urgent</span>
                                 )}
@@ -107,7 +107,7 @@ export default function Table_Demandes({
                                 )}
                             </td>
 
-                            <td className="hidden xl:table-cell">
+                            <td className="hidden xl:table-cell whitespace-nowrap">
                                 {demande.realise === 1 ? (
                                     <span className="badge badge-success">
                                         ✅ Réalisé le{" "}
@@ -171,7 +171,7 @@ export default function Table_Demandes({
                                         Positionné, en attente
                                     </span>
                                 ) : isFormateur && demande.id_technicien === idUser ? (
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 ">
                                         <span>✅ Vous êtes confirmé</span>
 
                                         <button
@@ -188,7 +188,7 @@ export default function Table_Demandes({
                             </td>
 
                             {isManageur && (
-                                <td className="hidden lg:table-cell">
+                                <td className="hidden lg:table-cell whitespace-nowrap">
                                     {demande.realise === 1 ? (
                                         <span className="badge badge-success !text-xs whitespace-nowrap">
                                             ✅ Réalisé
@@ -223,7 +223,7 @@ export default function Table_Demandes({
                         </tr>
 
                         {ligneOuverte === demande.id_demande && (
-                            <tr className="lg:hidden">
+                            <tr className="xl:hidden">
                                 <td colSpan={isManageur ? 7 : 6}>
                                     <div className="bg-base-200 p-4 rounded-lg space-y-2">
                                         <p>
@@ -249,7 +249,7 @@ export default function Table_Demandes({
                                                     : "Pressant"}
                                         </p>
 
-                                        <p>
+                                        <p className="whitespace-nowrap">
                                             <strong>Prise en charge :</strong>{" "}
                                             {demande.realise === 1
                                                 ? `Réalisé le ${new Date(demande.Date_realise).toLocaleDateString("fr-FR")}`

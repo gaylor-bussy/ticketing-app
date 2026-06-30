@@ -99,23 +99,23 @@ export default function HomePage({
     navigate("/resultat-demande");
   }
   return (
-    <section className="flex justify-center h-full items-center">
-      <form action="" className="flex flex-col w-xl" onSubmit={handleSubmit}>
+    <section className="flex min-h-full items-center justify-center px-4 py-6 sm:px-6 lg:py-10">
+      <form action="" className="flex w-full max-w-xl flex-col" onSubmit={handleSubmit}>
         <section className={nextPage === false ? "null" : "hidden"}>
           <div className="my-4">
-            <label className="text-white text-2xl" htmlFor="">
+            <label className="text-base text-white sm:text-xl" htmlFor="">
               Numéro AFPA :
             </label>
             <input
               type="text"
               placeholder="Saisissez votre numéro AFPA"
-              className="input input-success w-full placeholder:text-xl h-12"
+              className="input input-success h-12 w-full text-base placeholder:text-sm sm:placeholder:text-base"
               name="num_afpa"
               ref={inputNumAfpaRef}
               required
             />
             {messageInputNumAfpaInvite !== "" ? (
-              <div role="alert" className="alert alert-error">
+              <div role="alert" className="alert alert-error mt-2 items-start text-sm sm:text-base">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 shrink-0 stroke-current"
@@ -134,19 +134,19 @@ export default function HomePage({
             ) : null}
           </div>
           <div className="my-4">
-            <label className="text-white text-2xl" htmlFor="">
+            <label className="text-base text-white sm:text-xl" htmlFor="">
               Nom :
             </label>
             <input
               type="text"
               placeholder="Saisissez votre Nom"
-              className="input input-success w-full placeholder:text-xl h-12"
+              className="input input-success h-12 w-full text-base placeholder:text-sm sm:placeholder:text-base"
               name="nom_afpa"
               ref={inputNomRef}
               required
             />
             {messageInputNom !== "" ? (
-              <div role="alert" className="alert alert-error">
+              <div role="alert" className="alert alert-error mt-2 items-start text-sm sm:text-base">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 shrink-0 stroke-current"
@@ -165,19 +165,19 @@ export default function HomePage({
             ) : null}
           </div>
           <div className="my-4">
-            <label className="text-white text-2xl" htmlFor="">
+            <label className="text-base text-white sm:text-xl" htmlFor="">
               Prénom :
             </label>
             <input
               type="text"
               placeholder="Saisissez votre Prénom"
-              className="input input-success w-full placeholder:text-xl h-12"
+              className="input input-success h-12 w-full text-base placeholder:text-sm sm:placeholder:text-base"
               name="prenom_afpa"
               ref={inputPrenomRef}
               required
             />
             {messageInputPrenom !== "" ? (
-              <div role="alert" className="alert alert-error">
+              <div role="alert" className="alert alert-error mt-2 items-start text-sm sm:text-base">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 shrink-0 stroke-current"
@@ -197,29 +197,29 @@ export default function HomePage({
           </div>
           <div
             onClick={handleNext}
-            className="btn btn-success h-14 w-full text-2xl my-4 text-black"
+            className="btn btn-success my-4 h-12 w-full text-base text-black sm:h-14 sm:text-xl"
           >
             Suivant
           </div>
         </section>
         <div className={nextPage === true ? "null" : "hidden"}>
-          <select defaultValue="" className="select block mb-2" name="status">
+          <select defaultValue="" className="select mb-4 block h-12 w-full text-sm sm:text-base" name="status">
             <option disabled={true}>Selectionner un niveau d'urgence :</option>
             <option value={2}>Peu attendre</option>
             <option value={3}>Pressant</option>
             <option value={1}>Urgent</option>
           </select>
-          <label className="text-white text-2xl" htmlFor="">
+          <label className="text-base text-white sm:text-xl" htmlFor="">
             Description :
           </label>
           <textarea
             placeholder="Saisir votre description"
-            className="textarea textarea-success w-full h-36 mt-4"
+            className="textarea textarea-success mt-3 h-36 w-full text-base placeholder:text-sm sm:placeholder:text-base"
             name="description"
             required
           ></textarea>
           <button
-            className="btn btn-success h-14 w-full text-2xl my-4 text-black "
+            className="btn btn-success my-4 h-12 w-full text-base text-black sm:h-14 sm:text-xl"
             type=""
           >
             Envoyer la demande

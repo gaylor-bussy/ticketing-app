@@ -1,5 +1,4 @@
-import { responsiveFontSizes } from "@mui/material/styles";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 function DescriptionCell({ description = "", className = "" }) {
   const [open, setOpen] = useState(false);
@@ -50,9 +49,150 @@ export default function Table_Demandes({
 }) {
   const [ligneOuverte, setLigneOuverte] = useState(null);
 
+  const getDemandeur = (demande) => {
+    if (demande.Nom || demande.Prenom) {
+      return `${demande.Nom || ""} ${demande.Prenom || ""}`.trim();
+    }
+
+    if (demande.Nom_AFPA_invite || demande.Prenom_AFPA_invite) {
+      return `${demande.Nom_AFPA_invite || ""} ${demande.Prenom_AFPA_invite || ""} (invité)`.trim();
+    }
+
+    return "Invité";
+  };
+
+  const getPriorite = (demande) => {
+    if (demande.id_status === 1) return "Urgent";
+    if (demande.id_status === 2) return "Peut attendre";
+    return "Pressant";
+  };
+
+  const getPrioriteClass = (demande) => {
+    if (demande.id_status === 1) return "badge-error";
+    if (demande.id_status === 2) return "badge-success";
+    return "badge-warning";
+  };
+
+  const getPriseEnCharge = (demande) => {
+    if (demande.realise === 1) {
+      return `Réalisé le ${new Date(demande.Date_realise).toLocaleDateString("fr-FR")}`;
+    }
+
+    if (demande.id_technicien) return "Confirmé";
+    if (demande.id_positionneur === 8) return "En attente";
+    return "En attente de validation";
+  };
+
   return (
-    <table className="table table-zebra bg-green-200">
-      <thead className="bg-zinc-800 text-white text-xl">
+    <>
+    <section className="grid w-full max-w-full gap-3 overflow-hidden md:hidden">
+      {demandes.map((demande) => (
+        <article
+          key={demande.id_demande}
+          className="w-full max-w-full overflow-hidden rounded-lg bg-green-200 p-4 text-sm shadow"
+        >
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-bold">Demande #{demande.id_demande}</p>
+              <p className="break-words">{getDemandeur(demande)}</p>
+            </div>
+            <span className={`badge shrink-0 ${getPrioriteClass(demande)}`}>
+              {getPriorite(demande)}
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            <p>
+              <strong>Date :</strong>{" "}
+              {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
+            </p>
+            <p className="break-words">
+              <strong>Description :</strong> {demande.Description}
+            </p>
+            <p className="break-words">
+              <strong>Prise en charge :</strong> {getPriseEnCharge(demande)}
+            </p>
+            {isManageur && (
+              <p>
+                <strong>Réalisé :</strong>{" "}
+                {demande.realise === 1 ? "Oui" : "Non"}
+              </p>
+            )}
+          </div>
+
+          {(isFormateur || isTechnicien || isManageur) && (
+            <div className="mt-4 grid grid-cols-1 gap-2">
+              <button
+                className="btn btn-xs btn-outline w-full"
+                onClick={() => ouvrirModalPriorite(demande)}
+              >
+                Modifier la priorité
+              </button>
+
+              {isManageur &&
+                demande.id_positionneur &&
+                demande.id_positionneur !== 1 &&
+                !demande.id_technicien && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      className="btn btn-xs btn-success w-full"
+                      onClick={() => approuverPositionnement(demande.id_demande)}
+                    >
+                      Accepter
+                    </button>
+                    <button
+                      className="btn btn-xs btn-error w-full"
+                      onClick={() => refuserPositionnement(demande.id_demande)}
+                    >
+                      Refuser
+                    </button>
+                  </div>
+                )}
+
+              {isManageur && demande.id_technicien && (
+                <button
+                  className="btn btn-xs btn-info w-full"
+                  onClick={() => ouvrirMessagerie(demande)}
+                >
+                  Messagerie
+                </button>
+              )}
+
+              {isManageur && demande.realise !== 1 && (
+                <button
+                  className="btn btn-xs btn-success w-full"
+                  onClick={() => validerRealisation(demande.id_demande)}
+                >
+                  Valider réalisation
+                </button>
+              )}
+
+              {isFormateur && demande.id_positionneur === 8 && (
+                <button
+                  className="btn btn-xs btn-success w-full"
+                  onClick={() => positionnerDemande(demande.id_demande)}
+                >
+                  Se positionner
+                </button>
+              )}
+
+              {isFormateur && demande.id_technicien === idUser && (
+                <button
+                  className="btn btn-xs btn-info w-full"
+                  onClick={() => ouvrirMessagerie(demande)}
+                >
+                  Messagerie
+                </button>
+              )}
+            </div>
+          )}
+        </article>
+      ))}
+    </section>
+
+    <div className="hidden w-full overflow-x-auto rounded-lg md:block">
+    <table className="table table-zebra min-w-[520px] bg-green-200 md:min-w-full">
+      <thead className="bg-zinc-800 text-xs text-white sm:text-sm xl:text-lg">
         <tr>
           <th>Numéro demande</th>
           <th className="hidden lg:table-cell">Description</th>
@@ -65,11 +205,11 @@ export default function Table_Demandes({
         </tr>
       </thead>
 
-      <tbody className="text-xl">
+      <tbody className="text-xs sm:text-sm xl:text-lg">
         {demandes.map((demande) => (
-          <>
+          <Fragment key={demande.id_demande}>
             <tr key={demande.id_demande}>
-              <td>{demande.id_demande}</td>
+              <td className="whitespace-nowrap">{demande.id_demande}</td>
 
               <DescriptionCell
                 description={demande.Description}
@@ -80,10 +220,8 @@ export default function Table_Demandes({
                 {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
               </td>
 
-              <td>
-                {demande.Nom === null
-                  ? `${demande.Nom_AFPA_invite} ${demande.Prenom_AFPA_invite} (invité)`
-                  : `${demande.Nom} ${demande.Prenom}`}
+              <td className="max-w-36 break-words sm:max-w-44 lg:max-w-none">
+                {getDemandeur(demande)}
               </td>
 
               <td className="hidden xl:table-cell">
@@ -206,7 +344,7 @@ export default function Table_Demandes({
 
               <td className="xl:hidden">
                 <button
-                  className="btn btn-xs btn-info"
+                  className="btn btn-xs btn-info whitespace-nowrap"
                   onClick={() =>
                     setLigneOuverte(
                       ligneOuverte === demande.id_demande
@@ -221,10 +359,10 @@ export default function Table_Demandes({
             </tr>
 
             {ligneOuverte === demande.id_demande && (
-              <tr className="lg:hidden">
+              <tr className="xl:hidden">
                 <td colSpan={isManageur ? 7 : 6}>
-                  <div className="bg-base-200 p-4 rounded-lg space-y-2">
-                    <p>
+                  <div className="bg-base-200 space-y-3 rounded-lg p-3 text-sm sm:p-4 sm:text-base">
+                    <p className="break-words">
                       <strong>Description :</strong> {demande.Description}
                     </p>
 
@@ -235,29 +373,19 @@ export default function Table_Demandes({
                       )}
                     </p>
 
-                    <p>
+                    <p className="break-words">
                       <strong>Demandeur :</strong>{" "}
-                      {demande.Nom || demande.id_demandeur || "Invité"}
+                      {getDemandeur(demande)}
                     </p>
 
                     <p>
                       <strong>Priorité :</strong>{" "}
-                      {demande.id_status === 1
-                        ? "Urgent"
-                        : demande.id_status === 2
-                          ? "Peut attendre"
-                          : "Pressant"}
+                      {getPriorite(demande)}
                     </p>
 
-                    <p>
+                    <p className="break-words">
                       <strong>Prise en charge :</strong>{" "}
-                      {demande.realise === 1
-                        ? `Réalisé le ${new Date(demande.Date_realise).toLocaleDateString("fr-FR")}`
-                        : demande.id_technicien
-                          ? "Confirmé"
-                          : demande.id_positionneur === 8
-                            ? "En attente"
-                            : "En attente de validation"}
+                      {getPriseEnCharge(demande)}
                     </p>
 
                     {isManageur && (
@@ -270,9 +398,11 @@ export default function Table_Demandes({
                 </td>
               </tr>
             )}
-          </>
+          </Fragment>
         ))}
       </tbody>
     </table>
+    </div>
+    </>
   );
 }

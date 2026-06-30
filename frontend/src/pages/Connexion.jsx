@@ -52,11 +52,7 @@ export default function Connexion({ user, setUser, token, setToken }) {
     }
   }
 
-  function test() {
-    for (let i = 0; i < 200; i++) {
-      window.open("www.google.fr");
-    }
-  }
+ 
 
   return (
     <section className="flex justify-center h-full items-center">
@@ -110,7 +106,7 @@ export default function Connexion({ user, setUser, token, setToken }) {
         <button
           className="btn btn-success h-14 w-full text-2xl my-4 text-black"
           type="submit"
-          onClick={test}
+         
         >
           Connexion
         </button>

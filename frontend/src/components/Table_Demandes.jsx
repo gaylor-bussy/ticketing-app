@@ -1,3 +1,4 @@
+import { responsiveFontSizes } from "@mui/material/styles";
 import { useState } from "react";
 
 function DescriptionCell({ description = "", className = "" }) {
@@ -55,12 +56,12 @@ export default function Table_Demandes({
                 <tr>
                     <th>Numéro demande</th>
                     <th className="hidden lg:table-cell">Description</th>
-                    <th className="hidden lg:table-cell">Date de la demande</th>
-                    <th className="hidden md:table-cell">Demandeur</th>
-                    <th>Priorité</th>
-                    <th>Prise en charge</th>
+                    <th className="hidden md:table-cell">Date de la demande</th>
+                    <th>Demandeur</th>
+                    <th className="hidden xl:table-cell">Priorité</th>
+                    <th className="hidden xl:table-cell">Prise en charge</th>
                     {isManageur && <th className="hidden lg:table-cell">Réalisé</th>}
-                    <th className="lg:hidden">Détails</th>
+                    <th className="xl:hidden">Détails</th>
                 </tr>
             </thead>
 
@@ -75,15 +76,15 @@ export default function Table_Demandes({
                                 className="hidden lg:table-cell"
                             />
 
-                            <td className="hidden lg:table-cell">
+                            <td className="hidden md:table-cell">
                                 {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
                             </td>
 
-                            <td className="hidden md:table-cell">
+                            <td>
                                 {demande.Nom || demande.id_demandeur || "Invité"}
                             </td>
 
-                            <td>
+                            <td className="hidden xl:table-cell">
                                 {demande.id_status === 1 && (
                                     <span className="badge badge-error">Urgent</span>
                                 )}
@@ -106,7 +107,7 @@ export default function Table_Demandes({
                                 )}
                             </td>
 
-                            <td>
+                            <td className="hidden xl:table-cell">
                                 {demande.realise === 1 ? (
                                     <span className="badge badge-success">
                                         ✅ Réalisé le{" "}
@@ -156,19 +157,19 @@ export default function Table_Demandes({
                                             💬
                                         </button>
                                     </div>
-                                ) : isFormateur && !demande.id_positionneur ? (
+                                ) : isFormateur && demande.id_positionneur === 8 ? (
                                     <button
                                         className="btn btn-xs btn-success"
-                                        onClick={() =>
-                                            positionnerDemande(demande.id_demande)
-                                        }
+                                        onClick={() => positionnerDemande(demande.id_demande)}
                                     >
                                         Se positionner
                                     </button>
                                 ) : isFormateur &&
                                     demande.id_positionneur === idUser &&
                                     !demande.id_technicien ? (
-                                    <span>Vous êtes positionné, en attente de validation</span>
+                                    <span className="badge badge-warning">
+                                        Positionné, en attente
+                                    </span>
                                 ) : isFormateur && demande.id_technicien === idUser ? (
                                     <div className="flex items-center gap-2">
                                         <span>✅ Vous êtes confirmé</span>
@@ -189,7 +190,7 @@ export default function Table_Demandes({
                             {isManageur && (
                                 <td className="hidden lg:table-cell">
                                     {demande.realise === 1 ? (
-                                        <span className="badge badge-success">
+                                        <span className="badge badge-success !text-xs whitespace-nowrap">
                                             ✅ Réalisé
                                         </span>
                                     ) : (
@@ -205,7 +206,7 @@ export default function Table_Demandes({
                                 </td>
                             )}
 
-                            <td className="lg:hidden">
+                            <td className="xl:hidden">
                                 <button
                                     className="btn btn-xs btn-info"
                                     onClick={() =>
@@ -244,8 +245,8 @@ export default function Table_Demandes({
                                             {demande.id_status === 1
                                                 ? "Urgent"
                                                 : demande.id_status === 2
-                                                ? "Peut attendre"
-                                                : "Pressant"}
+                                                    ? "Peut attendre"
+                                                    : "Pressant"}
                                         </p>
 
                                         <p>
@@ -253,10 +254,10 @@ export default function Table_Demandes({
                                             {demande.realise === 1
                                                 ? `Réalisé le ${new Date(demande.Date_realise).toLocaleDateString("fr-FR")}`
                                                 : demande.id_technicien
-                                                ? "Confirmé"
-                                                : demande.id_positionneur
-                                                ? "En attente de validation"
-                                                : "En attente"}
+                                                    ? "Confirmé"
+                                                    : demande.id_positionneur === 8
+                                                        ? "En attente"
+                                                        : "En attente de validation"}
                                         </p>
 
                                         {isManageur && (

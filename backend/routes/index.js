@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port: 3307,
+  // port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -378,6 +378,35 @@ LEFT JOIN user_
   });
 });
 // ##############################################################################################################
+// #                                       menu nom demandeur pour manageur                                     #
+// ##############################################################################################################
+
+router.get("/dashboard/complet/nom", auth, (req, res) => {
+  const id_role = req.user.id_role;
+  if (id_role === 4) {
+    console.log(id_role);
+
+    return res.status(403).json({ message: "Accès refusé." });
+  }
+
+  const sql = `
+SELECT
+    user_.Nom AS Nom,
+    user_.Prenom AS Prenom
+FROM demande
+LEFT JOIN user_
+    ON demande.id_demandeur = user_.id_user
+`;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ message: "Erreur serveur." });
+    }
+    res.json(results);
+  });
+});
+// ##############################################################################################################
 // #                                       menu complet  formateur et tech                                      #
 // ##############################################################################################################
 
@@ -513,7 +542,7 @@ router.post("/dashboard/complet/messagerie/:id_demande", auth, (req, res) => {
     )
   `;
   const sql2 =
-    ` SELECT * FROM message WHERE id_demande = ? `;
+     ` SELECT * FROM message WHERE id_demande = ? `;
 
 
   db.query(
@@ -866,7 +895,7 @@ router.put(
 // #                                   Graphique                                                                #
 // ##############################################################################################################
 
-router.get("/dashboard/manageur/graphique", auth, (req, res) => {
+router.get("/dashboard/manageur/graphique",auth, (req, res) => {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
   if (id_role !== 1) {
@@ -884,7 +913,7 @@ FROM demande
 GROUP BY MONTH(Date_creation)
 ORDER BY MONTH(Date_creation);
 `;
-  db.query(sql, [id], (err, results) => {
+  db.query(sql,[id], (err, results) => {
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
       return res.status(500).json({ message: "Erreur serveur." });

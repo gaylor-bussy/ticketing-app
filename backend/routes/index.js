@@ -621,50 +621,75 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
 });
 
 // ##############################################################################################################
-// #                                             changement de role                                             #
+// #                                             Modification utilisateur                                       #
 // ##############################################################################################################
 
 router.put(
-  "/dashboard/complet/update/role/:id_user",
+  "/dashboard/manageur/gestion_utilisateur/modification/:id_user",
   auth,
-  function (req, res, next) {
+  (req, res) => {
     const id_user = req.params.id_user;
-    const id_role = req.user.id_role;
-    if (id_role !== 1) {
-      return res.status(403).json({ message: "Accès refusé." });
-    }
-    if (!req.body.id_role) {
-      return res.status(400).json({
-        message: "Saisie incorrect.",
+
+    if (req.user.id_role !== 1) {
+      return res.status(403).json({
+        message: "Accès refusé.",
       });
     }
-    const sql = ` UPDATE user_ SET id_role = ? WHERE id_user=?  `;
+   
+    const { Nom, Prenom, Num_AFPA, id_role } = req.body;
 
-    db.query(sql, [req.body.id_role, id_user], (err, result) => {
-      if (err) {
-        console.error("Erreur SQL :", err);
+    if (!Nom || !Prenom || !Num_AFPA || !id_role) {
+      return res.status(400).json({
+        message: "Tous les champs sont obligatoires.",
+      });
+    }
 
-        return res.status(500).json({
-          message: err.message,
-          code: err.code,
-          sqlMessage: err.sqlMessage,
-        });
-      } else {
-        return res.status(200).json({
-          message: "Role modifié.",
-          code: "OK",
+    const sql = `
+      UPDATE user_
+      SET
+        Nom = ?,
+        Prenom = ?,
+        Num_AFPA = ?,
+        id_role = ?
+      WHERE id_user = ?
+    `;
+console.log(req.body)
+console.log([Nom, Prenom, Num_AFPA, id_role, id_user])
+    db.query(
+      sql,
+      [Nom, Prenom, Num_AFPA, id_role, id_user],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          console.log(err)
+          return res.status(500).json({
+            message: err.message,
+          });
+        }
+        console.log(result)
+        res.status(200).json({
+          id_user,
+          Nom,
+          Prenom,
+          Num_AFPA,
+          id_role,
+          Nom_role:
+           id_role == 1 ?"Manageur" :
+           id_role == 2 ?"Formateur" :
+           id_role == 1?"Technicien" :
+           "Utilisateur" ,
+          message: "Utilisateur modifié avec succès.",
         });
       }
-    });
-  },
+    );
+  }
 );
-
 // ##############################################################################################################
 // #                                             supprime utilisateur                                           #
 // ##############################################################################################################
 
 router.delete(
-  "/dashboard/complet/delete/utilisateur/:id_user",
+  "/dashboard/manageur/gestion_utilisateur/supprime/:id_user",
   auth,
   function (req, res, next) {
     const id_user = req.params.id_user;
@@ -838,7 +863,7 @@ router.put(
 );
 
 // ##############################################################################################################
-//                                     Graphique                                                                  #
+// #                                   Graphique                                                                #
 // ##############################################################################################################
 
 router.get("/dashboard/manageur/graphique", auth, (req, res) => {
@@ -870,10 +895,123 @@ ORDER BY MONTH(Date_creation);
 
 
 
+// ##############################################################################################################
+// #                                             menu Ajout utilisateur page.                                   #
+// ##############################################################################################################
 
 
 
+router.post("/dashboard/manageur/gestion_utilisateur/ajout", async (req, res) => {
+    const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    console.log(id_role);
 
+    return res.status(403).json({ message: "Accès refusé" });
+  }
+  const { Nom, Prenom, Num_AFPA, Password } = req.body;
+
+
+  if (!Nom || !Prenom || !Num_AFPA || !Password) {
+    return res.status(400).json({
+      message: "Saisie incorrecte.",
+    });
+  }
+
+
+  if (!/^\d+$/.test(Num_AFPA)) {
+    return res.status(400).json({
+      message: "Le numéro AFPA doit contenir uniquement des chiffres.",
+    });
+  }
+
+  const sqlCheck = `
+    SELECT id_user
+    FROM user_
+    WHERE Num_AFPA = ?
+  `;
+
+  db.query(sqlCheck, [Num_AFPA], async (err, results) => {
+    if (err) {
+      console.error("Erreur SQL :", err);
+      return res.status(500).json({
+        message: "Erreur serveur.",
+      });
+    }
+
+    if (results.length > 0) {
+      return res.status(409).json({
+        message: "Ce numéro AFPA est déjà utilisé.",
+      });
+    }
+
+    // Hash du mot de passe
+    const hash = await bcrypt.hash(Password, 10);
+
+    const sql = `
+      INSERT INTO user_ (
+        id_user,
+        Nom,
+        Prenom,
+        Num_AFPA,
+        Password,
+        id_role
+      )
+      VALUES (
+        NULL,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+      )
+    `;
+
+    const values = [Nom, Prenom, Num_AFPA, hash, 4];
+
+    db.query(sql, values, (err, results) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
+
+        return res.status(500).json({
+          message: err.message,
+          code: err.code,
+          sqlMessage: err.sqlMessage,
+        });
+      }
+
+      return res.status(201).json({
+        message: "Inscription réussie.",
+        code: "OK",
+        id_user: results.insertId,
+      });
+    });
+  });
+});
+
+// ##############################################################################################################
+// #                                             menu Gestion page.                                             #
+// ##############################################################################################################
+
+router.get("/dashboard/manageur/gestion_utilisateur", auth, (req, res) => {
+ const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    console.log(id_role);
+
+    return res.status(403).json({ message: "Accès refusé" });
+  }
+
+  const sql2 = `SELECT * FROM user_ INNER JOIN role ON(user_.id_role = role.id_role) `;
+
+  db.query(sql2,  (err, results) => {
+    if (err) {
+      console.error("Erreur SQL lecture messages :", err);
+      return res.status(500).json({ message: "Erreur serveur." });
+    }
+
+    res.json(results);
+  });
+});
 
 
 

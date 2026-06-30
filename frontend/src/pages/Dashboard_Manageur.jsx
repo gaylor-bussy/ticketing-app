@@ -220,6 +220,11 @@ export default function Dashboard_Manager({ userr }) {
             </div>
             <section className="flex justify-between items-center mb-4">
                 <Search_Bar search={search} setSearch={setSearch} />
+                <Link to={"/dashboard/manageur/gestion_utilisateur"}>
+                <button className="btn btn-success" >
+                Gestion Utilisateur
+                </button>
+                </Link>
                 <button className="btn btn-success" onClick={exportExcel}>
                 Export Excel
                 </button>

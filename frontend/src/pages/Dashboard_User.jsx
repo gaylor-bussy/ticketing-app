@@ -31,6 +31,7 @@ export default function Dashboard_User({ user }) {
       .then((data) => setDemandes(data))
       .catch((error) => console.error(error));
   }, []);
+console.log(demandes);
 
   const ajouterDemande = async () => {
     try {

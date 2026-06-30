@@ -377,35 +377,7 @@ LEFT JOIN user_ AS demandeur
     res.json(results);
   });
 });
-// ##############################################################################################################
-// #                                       menu nom demandeur pour manageur                                     #
-// ##############################################################################################################
 
-router.get("/dashboard/complet/nom", auth, (req, res) => {
-  const id_role = req.user.id_role;
-  if (id_role === 4) {
-    console.log(id_role);
-
-    return res.status(403).json({ message: "Accès refusé." });
-  }
-
-  const sql = `
-SELECT
-    user_.Nom AS Nom,
-    user_.Prenom AS Prenom
-FROM demande
-LEFT JOIN user_
-    ON demande.id_demandeur = user_.id_user
-`;
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Erreur lors de la requête :", err.message);
-      return res.status(500).json({ message: "Erreur serveur." });
-    }
-    res.json(results);
-  });
-});
 // ##############################################################################################################
 // #                                       menu complet  formateur et tech                                      #
 // ##############################################################################################################
@@ -421,11 +393,15 @@ router.get("/dashboard/formateur_technicien", auth, (req, res) => {
   const sql = `
 SELECT
     demande.*,
-    user_.Nom AS Nom_positionneur,
-    user_.Prenom AS Prenom_positionneur
+    positionneur.Nom AS Nom_positionneur,
+    positionneur.Prenom AS Prenom_positionneur,
+    demandeur.Nom AS Nom_demandeur,
+    demandeur.Prenom AS Prenom_demandeur
 FROM demande
-LEFT JOIN user_
-    ON demande.id_positionneur = user_.id_user
+LEFT JOIN user_ AS positionneur
+    ON demande.id_positionneur = positionneur.id_user
+LEFT JOIN user_ AS demandeur
+    ON demande.id_demandeur = demandeur.id_user;
 `;
   db.query(sql, (err, results) => {
     if (err) {

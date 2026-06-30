@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  port: 3307,
+  // port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -84,7 +84,7 @@ router.post("/invite/request", (req, res) => {
       ?,
       NULL,
       ?,
-      NULL,
+      ?,
       NULL
     )
   `;
@@ -97,6 +97,7 @@ router.post("/invite/request", (req, res) => {
     req.body.Prenom_AFPA_invite,
     0,
     req.body.id_status,
+    8,
     8,
   ];
   console.log(values);
@@ -602,7 +603,7 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
       ?,
       ?,
       ?,
-      NULL,
+      8,
       8,
       NULL
     )

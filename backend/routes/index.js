@@ -923,7 +923,36 @@ ORDER BY MONTH(Date_creation);
 });
 
 
+// ##############################################################################################################
+// #                                   Graphique Année                                                          #
+// ##############################################################################################################
 
+router.get("/dashboard/manageur/graphique/annee",auth, (req, res) => {
+  const id = req.params.id_demande;
+  const id_role = req.user.id_role;
+  if (id_role !== 1) {
+    console.log(id_role);
+
+    return res.status(403).json({ message: "Accès refusé" });
+  }
+
+  const sql = `
+SELECT 
+    YEAR(Date_creation) AS annee, 
+    COUNT(id_demande) AS crees,
+SUM(CASE WHEN realise = 1 THEN 1 ELSE 0 END) AS realisees
+FROM demande 
+GROUP BY YEAR(Date_creation)
+ORDER BY YEAR(Date_creation);
+`;
+  db.query(sql,[id], (err, results) => {
+    if (err) {
+      console.error("Erreur lors de la requête :", err.message);
+      return res.status(500).json({ message: "Erreur serveur." });
+    }
+    res.json(results);
+  });
+});
 // ##############################################################################################################
 // #                                             menu Ajout utilisateur page.                                   #
 // ##############################################################################################################

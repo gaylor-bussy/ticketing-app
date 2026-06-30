@@ -5,7 +5,7 @@ export default function ShowDemandinvite({ idDemandeInvitee, numDemande }) {
 
 
     const getNumDemande = localStorage.getItem("num_demande");
-    console.log(getNumDemande);
+    console.log(demandes);
     
     useEffect(() => {
       fetch(`http://localhost:3000/invite/request/${getNumDemande}`, {

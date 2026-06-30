@@ -7,24 +7,6 @@ export default function Modal_Modification_Utilisateur({
   setUserSelectionnee,
   ModificationUtilisateur,
 }) {
-  const [formulaire, setFormulaire] = useState({
-    Nom: "",
-    Prenom: "",
-    Num_AFPA: "",
-    id_role: "",
-  });
-
-  useEffect(() => {
-    if (userSelectionnee) {
-      setFormulaire({
-        Nom: userSelectionnee.Nom,
-        Prenom: userSelectionnee.Prenom,
-        Num_AFPA: userSelectionnee.Num_AFPA,
-        id_role: userSelectionnee.id_role,
-      });
-    }
-  }, [userSelectionnee]);
-
   if (!showModalModification || !userSelectionnee) return null;
 
   return (
@@ -37,10 +19,10 @@ export default function Modal_Modification_Utilisateur({
 
         <input
           className="input input-bordered w-full mb-3"
-          value={formulaire.Nom}
+          value={userSelectionnee.Nom}
           onChange={(e) =>
-            setFormulaire({
-              ...formulaire,
+            setUserSelectionnee({
+              ...userSelectionnee,
               Nom: e.target.value,
             })
           }
@@ -49,10 +31,10 @@ export default function Modal_Modification_Utilisateur({
 
         <input
           className="input input-bordered w-full mb-3"
-          value={formulaire.Prenom}
+          value={userSelectionnee.Prenom}
           onChange={(e) =>
-            setFormulaire({
-              ...formulaire,
+            setUserSelectionnee({
+              ...userSelectionnee,
               Prenom: e.target.value,
             })
           }
@@ -61,10 +43,10 @@ export default function Modal_Modification_Utilisateur({
 
         <input
           className="input input-bordered w-full mb-3"
-          value={formulaire.Num_AFPA}
+          value={userSelectionnee.Num_AFPA}
           onChange={(e) =>
-            setFormulaire({
-              ...formulaire,
+            setUserSelectionnee({
+              ...userSelectionnee,
               Num_AFPA: e.target.value,
             })
           }
@@ -73,18 +55,18 @@ export default function Modal_Modification_Utilisateur({
 
         <select
           className="select select-bordered w-full"
-          value={formulaire.id_role}
+          value={userSelectionnee.id_role}
           onChange={(e) =>
-            setFormulaire({
-              ...formulaire,
+            setUserSelectionnee({
+              ...userSelectionnee,
               id_role: e.target.value,
             })
           }
         >
-          <option value="1">Manager</option>
-          <option value="2">Formateur</option>
-          <option value="3">Technicien</option>
-          <option value="4">Utilisateur</option>
+          <option value={1}>Manager</option>
+          <option value={2}>Formateur</option>
+          <option value={3}>Technicien</option>
+          <option value={4}>Utilisateur</option>
         </select>
 
         <div className="modal-action">
@@ -97,14 +79,7 @@ export default function Modal_Modification_Utilisateur({
 
           <button
             className="btn btn-success"
-            onClick={() => {
-              setUserSelectionnee({
-                ...userSelectionnee,
-                ...formulaire,
-              });
-
-              ModificationUtilisateur();
-            }}
+            onClick={ModificationUtilisateur}
           >
             Valider
           </button>

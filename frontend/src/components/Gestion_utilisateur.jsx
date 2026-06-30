@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Modal_Modification_Utilisateur from "./Modal_Modification_utilisateur";
-
+import Modal_Supprime from "./Modal_Supprime";
 
 
 export default function GestionUtilisateur({userr}){
     const user = JSON.parse(localStorage.getItem("user"));
     const [gestion,setGestion]=useState([]);
     const [showModalModification, setShowModalModification] = useState(false);
-     const [userSelectionnee, setUserSelectionnee] = useState(null);
-
+    const [userSelectionnee, setUserSelectionnee] = useState(null);
+    const [showModalSupprime, setShowModalSupprime] = useState(false);
 
  useEffect(() => {
     const token = localStorage.getItem("token");
@@ -32,7 +32,7 @@ export default function GestionUtilisateur({userr}){
 
 const ModificationUtilisateur = async () => {
     const token = localStorage.getItem("token");
-console.log(userSelectionnee);
+
     const response = await fetch(
       `http://localhost:3000/dashboard/manageur/gestion_utilisateur/modification/${userSelectionnee.id_user}`,
       {
@@ -40,12 +40,7 @@ console.log(userSelectionnee);
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-        },body: JSON.stringify({
-  Nom: userSelectionnee.Nom,
-  Prenom: userSelectionnee.Prenom,
-  Num_AFPA: userSelectionnee.Num_AFPA,
-  id_role: userSelectionnee.id_role,
-}),
+        },body: JSON.stringify(userSelectionnee),
        
       },
     );
@@ -63,6 +58,40 @@ console.log(data);
 
       setShowModalModification(false);
       setUserSelectionnee(null);
+    }
+  };
+
+
+
+const SupprimeUtilisateur = async () => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      `http://localhost:3000/dashboard/manageur/gestion_utilisateur/supprime/${userSelectionnee.id_user}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },body: JSON.stringify(userSelectionnee),
+       
+      },
+    );
+
+    const data = await response.json();
+    console.log(response.status);
+console.log(data);
+
+    if (response.ok) {
+      setGestion((prev) =>
+        prev.map((u) =>
+          u.id_user == data.id_user ? data:  u,
+        ),
+      );
+
+      setShowModalSupprime(false);
+      setUserSelectionnee(null);
+       window.location.reload();
     }
   };
 
@@ -112,10 +141,12 @@ return(
                     <td>{user_.Num_AFPA }</td>
                     <td>{user_.Nom_role }</td>
                     <td><button class="btn btn-xs btn-outline ml-2" onClick={() =>{
-                         setUserSelectionnee(user_);
+                         setUserSelectionnee({...user_});
                          setShowModalModification(true);
                     }}>✏️</button></td>
-                    <td><button class="btn btn-xs btn-error ">❌</button></td>
+                    <td><button class="btn btn-xs btn-error "onClick={() =>{
+                         setUserSelectionnee({...user_});
+                         setShowModalSupprime(true)}}>❌</button></td>
                    
 
                     </tr>
@@ -128,10 +159,18 @@ return(
               setShowModalModification={setShowModalModification}
               userSelectionnee={userSelectionnee}
               setUserSelectionnee={setUserSelectionnee}
-
-              ModificationUtilisateur={ModificationUtilisateur}
-                
+              ModificationUtilisateur={ModificationUtilisateur}    
             />
+             <Modal_Supprime
+              showModalSupprime={showModalSupprime}
+              setShowModalSupprime={setShowModalSupprime}
+              userSelectionnee={userSelectionnee}
+              setUserSelectionnee={setUserSelectionnee}
+              SupprimeUtilisateur={SupprimeUtilisateur}    
+            />
+
+
+
 
               </tbody>
              

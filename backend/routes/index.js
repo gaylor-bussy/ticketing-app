@@ -653,24 +653,31 @@ router.put(
         id_role = ?
       WHERE id_user = ?
     `;
-
+console.log(req.body)
+console.log([Nom, Prenom, Num_AFPA, id_role, id_user])
     db.query(
       sql,
       [Nom, Prenom, Num_AFPA, id_role, id_user],
       (err, result) => {
         if (err) {
           console.error(err);
+          console.log(err)
           return res.status(500).json({
             message: err.message,
           });
         }
-
+        console.log(result)
         res.status(200).json({
           id_user,
           Nom,
           Prenom,
           Num_AFPA,
           id_role,
+          Nom_role:
+           id_role == 1 ?"Manageur" :
+           id_role == 2 ?"Formateur" :
+           id_role == 1?"Technicien" :
+           "Utilisateur" ,
           message: "Utilisateur modifié avec succès.",
         });
       }

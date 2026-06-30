@@ -80,7 +80,7 @@ export default function Table_Demandes({
                             </td>
 
                             <td className="hidden md:table-cell">
-                                {demande.Nom || demande.id_demandeur || "Invité"}
+                                { demande.Nom_demandeur === null ? `${demande.Nom_AFPA_invite} ${demande.Prenom_AFPA_invite} (invité)` : `${demande.Nom_demandeur} ${demande.Prenom_demandeur}`}
                             </td>
 
                             <td>

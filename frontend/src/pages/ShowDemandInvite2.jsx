@@ -13,5 +13,6 @@ export default function ShowDemandinvite2({ idDemandeInvitee, numDemande }) {
       .then((data) => setDemandes(data))
       .catch((error) => console.error(error));
   }, []);
+  console.log(demandes);
   return <Table_Demandes demandes={demandes} />;
 }

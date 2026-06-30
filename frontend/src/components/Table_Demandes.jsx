@@ -80,7 +80,7 @@ export default function Table_Demandes({
                                 {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
                             </td>
 
-                            <td className="hidden md:table-cell">
+                            <td>
                                 { demande.Nom_demandeur === null ? `${demande.Nom_AFPA_invite} ${demande.Prenom_AFPA_invite} (invité)` : `${demande.Nom_demandeur} ${demande.Prenom_demandeur}`}
                             </td>
 

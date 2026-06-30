@@ -84,7 +84,7 @@ router.post("/invite/request", (req, res) => {
       ?,
       NULL,
       ?,
-      NULL,
+      ?,
       NULL
     )
   `;
@@ -97,6 +97,7 @@ router.post("/invite/request", (req, res) => {
     req.body.Prenom_AFPA_invite,
     0,
     req.body.id_status,
+    8,
     8,
   ];
   console.log(values);
@@ -602,7 +603,7 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
       ?,
       ?,
       ?,
-      NULL,
+      8,
       8,
       NULL
     )

@@ -11,9 +11,10 @@ export default function Header({
     setNextPage(false);
   }
 
+
   return (
     <header className="flex bg-zinc-800 p-4 justify-between">
-      <img src="/public/images/logo-AFPA-final.png" alt="" className="h-52" />
+      <img src="/public/images/logo-AFPA-final.png" alt="" className="h-52"  />
 
       {user === null ? (
         <>

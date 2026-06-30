@@ -11,7 +11,7 @@ export default function Modal_Supprime({
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box">
+      <div className="modal-box w-11/12 max-w-md">
 
         <h3 className="font-bold text-lg mb-4">
           Supprimer un utilisateur
@@ -19,16 +19,16 @@ export default function Modal_Supprime({
 
        
 
-        <div className="modal-action">
+        <div className="modal-action flex-col sm:flex-row">
           <button
-            className="btn btn-error"
+            className="btn btn-error w-full sm:w-auto"
             onClick={() => setShowModalSupprime(false)}
           >
             Non
           </button>
 
           <button
-            className="btn btn-success"
+            className="btn btn-success w-full sm:w-auto"
             onClick={SupprimeUtilisateur}
           >
             Oui

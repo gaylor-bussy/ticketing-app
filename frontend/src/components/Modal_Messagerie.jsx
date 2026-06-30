@@ -65,12 +65,12 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
 
     return (
         <dialog className="modal modal-open">
-            <div className="modal-box max-w-2xl">
-                <h3 className="font-bold text-xl mb-4">
+            <div className="modal-box w-11/12 max-w-2xl p-4 sm:p-6">
+                <h3 className="font-bold text-lg sm:text-xl mb-4 break-words">
                     Messagerie demande #{demande.id_demande}
                 </h3>
 
-                <div className="border rounded-lg p-3 h-96 overflow-y-auto bg-base-200">
+                <div className="border rounded-lg p-3 h-72 sm:h-96 overflow-y-auto bg-base-200">
                     {messages.length === 0 ? (
                         <p>Aucun message.</p>
                     ) : (
@@ -83,7 +83,7 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
                                     className={`chat ${isMoi ? "chat-end" : "chat-start"}`}
                                 >
                                     <div
-                                        className={`chat-bubble ${isMoi
+                                        className={`chat-bubble max-w-[85vw] sm:max-w-md break-words ${isMoi
                                             ? "chat-bubble-primary"
                                             : "chat-bubble-success"
                                             }`}
@@ -108,16 +108,16 @@ export default function Modal_Messagerie({ open, setOpen, demande }) {
                     onChange={(e) => setNouveauMessage(e.target.value)}
                 />
 
-                <div className="modal-action">
+                <div className="modal-action flex-col sm:flex-row">
                     <button
-                        className="btn btn-error"
+                        className="btn btn-error w-full sm:w-auto"
                         onClick={() => setOpen(false)}
                     >
                         Fermer
                     </button>
 
                     <button
-                        className="btn btn-success"
+                        className="btn btn-success w-full sm:w-auto"
                         onClick={envoyerMessage}
                     >
                         Envoyer

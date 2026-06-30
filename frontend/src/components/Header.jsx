@@ -13,35 +13,35 @@ export default function Header({
 
 
   return (
-    <header className="flex bg-zinc-800 p-4 justify-between">
-      <img src="/public/images/logo-AFPA-final.png" alt="" className="h-52"  />
+    <header className="flex w-full max-w-full flex-col gap-4 overflow-x-hidden bg-zinc-800 p-4 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+      <img src="/public/images/logo-AFPA-final.png" alt="" className="h-20 w-auto object-contain sm:h-24 lg:h-32"  />
 
       {user === null ? (
         <>
-        <div className="flex">
+        <div className="flex flex-col gap-3 text-center sm:flex-row sm:items-center sm:gap-5 md:gap-8">
           {" "}
           <Link
-            className="text-white self-end text-2xl mr-48"
+            className="text-white text-base sm:text-lg lg:text-xl"
             to="/"
             onClick={handleChange}
           >
             Ajouter une demande
           </Link>
           <Link
-            className="text-white self-end text-2xl"
+            className="text-white text-base sm:text-lg lg:text-xl"
             to="/consulter-demande"
           >
             Consulter une demande
           </Link>
         </div>
-        <div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Link to={"/inscription"}>
-            <button className="btn btn-success m-2 text-black h-14 w-32 text-2xl ">
+            <button className="btn btn-success w-full text-black text-sm sm:w-28 sm:text-base lg:w-32">
               S'inscrire
             </button>
           </Link>
           <Link to={"/connexion"}>
-            <button className="btn btn-success m-2 text-black h-14 w-32 text-2xl">
+            <button className="btn btn-success w-full text-black text-sm sm:w-28 sm:text-base lg:w-32">
               Connexion
             </button>
           </Link>

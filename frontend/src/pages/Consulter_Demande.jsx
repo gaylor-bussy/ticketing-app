@@ -42,12 +42,12 @@ export default function Consulter_Demande({ setNumDemande }) {
     }
   }
   return (
-    <section className="flex w-full h-full justify-center items-center ">
-      <form action="" className="flex flex-col w-1/3" onSubmit={handleSubmit}>
+    <section className="flex min-h-full w-full items-center justify-center px-4 py-6 sm:px-6 lg:py-10">
+      <form action="" className="flex w-full max-w-xl flex-col" onSubmit={handleSubmit}>
         {message ? (
           <div
             role="alert"
-            className={`alert ${typeMessage === "success" ? "alert-success" : "alert-error"}`}
+            className={`alert items-start text-sm sm:text-base ${typeMessage === "success" ? "alert-success" : "alert-error"}`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -66,17 +66,17 @@ export default function Consulter_Demande({ setNumDemande }) {
           </div>
         ) : null}
         <div className="my-4 flex flex-col">
-          <label className="text-white text-2xl mb-4" htmlFor="">
+          <label className="mb-3 text-base text-white sm:text-xl" htmlFor="">
             Numéro de demande :
           </label>
           <input
             type="text"
             placeholder="Saisissez votre numéro de demande"
-            className="input input-success  placeholder:text-xl h-12 w-full"
+            className="input input-success h-12 w-full text-base placeholder:text-sm sm:placeholder:text-base"
             name="num_demande"
           />
         </div>
-        <button type="submit" className="btn btn-success w-full h-20 mt-8">
+        <button type="submit" className="btn btn-success mt-6 h-12 w-full text-base sm:h-14 sm:text-xl">
           Consulter
         </button>
       </form>

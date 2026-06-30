@@ -52,7 +52,6 @@ export default function Connexion({ user, setUser, token, setToken }) {
     }
   }
 
-
   return (
     <section className="flex justify-center h-full items-center">
       <form action="" className="flex flex-col w-xl" onSubmit={handleSubmit}>

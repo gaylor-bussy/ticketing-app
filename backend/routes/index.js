@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  //port: 3307,
+  // port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -84,7 +84,7 @@ router.post("/invite/request", (req, res) => {
       ?,
       NULL,
       ?,
-      NULL,
+      ?,
       NULL
     )
   `;
@@ -97,6 +97,7 @@ router.post("/invite/request", (req, res) => {
     req.body.Prenom_AFPA_invite,
     0,
     req.body.id_status,
+    8,
     8,
   ];
   console.log(values);
@@ -119,10 +120,20 @@ router.post("/invite/request", (req, res) => {
 // ##############################################################################################################
 // #                                         requete invité                                                     #
 // ##############################################################################################################
-
+// SELECT
+//     demande.*,
+//     positionneur.Nom AS Nom_positionneur,
+//     positionneur.Prenom AS Prenom_positionneur,
+//     demandeur.Nom AS Nom,
+//     demandeur.Prenom AS Prenom
+// FROM demande
+// LEFT JOIN user_ AS positionneur
+//     ON demande.id_positionneur = positionneur.id_user
+// LEFT JOIN user_ AS demandeur
+//     ON demande.id_demandeur = demandeur.id_user;
 router.get("/invite/request/:NbRequest", (req, res) => {
   const NbRequest = req.params.NbRequest;
-  const sql = "SELECT * FROM demande WHERE id_demande = ?";
+  const sql = "SELECT demande.* , demandeur.Nom AS Nom , demandeur.Prenom AS Prenom FROM demande LEFT JOIN user_ AS demandeur ON demande.id_demandeur = demandeur.id_user WHERE id_demande = ?";
   db.query(sql, [NbRequest], (err, results) => {
     if (results.length === 0) {
       return res.status(409).json({
@@ -360,8 +371,8 @@ SELECT
     demande.*,
     positionneur.Nom AS Nom_positionneur,
     positionneur.Prenom AS Prenom_positionneur,
-    demandeur.Nom AS Nom_demandeur,
-    demandeur.Prenom AS Prenom_demandeur
+    demandeur.Nom AS Nom,
+    demandeur.Prenom AS Prenom
 FROM demande
 LEFT JOIN user_ AS positionneur
     ON demande.id_positionneur = positionneur.id_user
@@ -395,8 +406,8 @@ SELECT
     demande.*,
     positionneur.Nom AS Nom_positionneur,
     positionneur.Prenom AS Prenom_positionneur,
-    demandeur.Nom AS Nom_demandeur,
-    demandeur.Prenom AS Prenom_demandeur
+    demandeur.Nom AS Nom,
+    demandeur.Prenom AS Prenom
 FROM demande
 LEFT JOIN user_ AS positionneur
     ON demande.id_positionneur = positionneur.id_user
@@ -592,7 +603,7 @@ router.post("/dashboard/utilisateur/request", auth, (req, res) => {
       ?,
       ?,
       ?,
-      NULL,
+      8,
       8,
       NULL
     )

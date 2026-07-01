@@ -34,6 +34,24 @@ function DescriptionCell({ description = "", className = "" }) {
   );
 }
 
+function formatDateHeure(dateValue) {
+  if (!dateValue) return "";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateValue;
+  }
+
+  return date.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function Table_Demandes({
   demandes,
   isFormateur = false,
@@ -168,7 +186,7 @@ export default function Table_Demandes({
 
   const getPriseEnCharge = (demande) => {
     if (demande.realise === 1) {
-      return `Réalisé le ${new Date(demande.Date_realise).toLocaleDateString("fr-FR")}`;
+      return `Réalisé le ${formatDateHeure(demande.Date_realise)}`;
     }
 
     if (hasTechnicien(demande)) return `Pris en charge par ${getIntervenant(demande)}`;
@@ -200,7 +218,7 @@ export default function Table_Demandes({
           <div className="space-y-2">
             <p>
               <strong>Date :</strong>{" "}
-              {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
+              {formatDateHeure(demande.Date_creation)}
             </p>
             <p className="break-words">
               <strong>Description :</strong> {demande.Description}
@@ -320,7 +338,7 @@ export default function Table_Demandes({
               />
 
               <td className="hidden md:table-cell">
-                {new Date(demande.Date_creation).toLocaleDateString("fr-FR")}
+                {formatDateHeure(demande.Date_creation)}
               </td>
 
               <td className="max-w-36 break-words sm:max-w-44 lg:max-w-none">
@@ -354,7 +372,7 @@ export default function Table_Demandes({
                 {demande.realise === 1 ? (
                   <span className="badge badge-success">
                     ✅ Réalisé le{" "}
-                    {new Date(demande.Date_realise).toLocaleDateString("fr-FR")}
+                    {formatDateHeure(demande.Date_realise)}
                   </span>
                 ) : isManageur &&
                   hasPositionneur(demande) &&
@@ -470,9 +488,7 @@ export default function Table_Demandes({
 
                     <p>
                       <strong>Date :</strong>{" "}
-                      {new Date(demande.Date_creation).toLocaleDateString(
-                        "fr-FR",
-                      )}
+                      {formatDateHeure(demande.Date_creation)}
                     </p>
 
                     <p className="break-words">

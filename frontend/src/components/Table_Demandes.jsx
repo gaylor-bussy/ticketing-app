@@ -46,8 +46,100 @@ export default function Table_Demandes({
   approuverPositionnement,
   refuserPositionnement,
   validerRealisation,
+  techniciens = [],
+  choisirTechnicien,
 }) {
   const [ligneOuverte, setLigneOuverte] = useState(null);
+  const [techniciensSelectionnes, setTechniciensSelectionnes] = useState({});
+
+  const getDemandeAffichee = (demande) => {
+    const technicien = techniciensSelectionnes[demande.id_demande];
+
+    if (!technicien) return demande;
+
+    const idTechnicien = Number(technicien.id_user);
+
+    return {
+      ...demande,
+      id_technicien: idTechnicien,
+      id_positionneur: idTechnicien,
+      technicien_selectionne: true,
+      Nom_technicien: technicien.Nom,
+      Prenom_technicien: technicien.Prenom,
+      Nom_positionneur: technicien.Nom,
+      Prenom_positionneur: technicien.Prenom,
+    };
+  };
+
+  const hasTechnicien = (demande) => {
+    const idTechnicien = Number(demande.id_technicien);
+    const idPositionneur = Number(demande.id_positionneur);
+    const idRolePositionneur = Number(demande.id_role_positionneur);
+
+    if (!demande.id_technicien) return false;
+    if (demande.technicien_selectionne) return true;
+    if (idTechnicien !== 8) return true;
+    if (idPositionneur === 8) return false;
+
+    return idRolePositionneur === 1;
+  };
+
+  const hasPositionneur = (demande) =>
+    Boolean(demande.id_positionneur) &&
+    Number(demande.id_positionneur) !== 1 &&
+    Number(demande.id_positionneur) !== 8;
+
+  const peutChoisirTechnicien = (demande) =>
+    isManageur &&
+    demande.realise !== 1 &&
+    !hasTechnicien(demande) &&
+    !hasPositionneur(demande);
+
+  const getIntervenant = (demande) => {
+    if (demande.Nom_technicien || demande.Prenom_technicien) {
+      return `${demande.Prenom_technicien || ""} ${demande.Nom_technicien || ""}`.trim();
+    }
+
+    if (demande.Nom_positionneur || demande.Prenom_positionneur) {
+      return `${demande.Prenom_positionneur || ""} ${demande.Nom_positionneur || ""}`.trim();
+    }
+
+    return "Technicien";
+  };
+
+  const SelectTechnicien = ({ demande, className = "" }) => {
+    const onSelectTechnicien = (idTechnicien) => {
+      const technicien = techniciens.find(
+        (utilisateur) => String(utilisateur.id_user) === String(idTechnicien),
+      );
+
+      if (technicien) {
+        setTechniciensSelectionnes((prev) => ({
+          ...prev,
+          [demande.id_demande]: technicien,
+        }));
+      }
+
+      choisirTechnicien?.(demande.id_demande, idTechnicien);
+    };
+
+    return (
+      <select
+        className={`select select-bordered select-xs ${className}`}
+        defaultValue=""
+        onChange={(e) => onSelectTechnicien(e.target.value)}
+      >
+        <option value="" disabled>
+          Choisir un technicien
+        </option>
+        {techniciens.map((technicien) => (
+          <option key={technicien.id_user} value={technicien.id_user}>
+            {technicien.Prenom} {technicien.Nom}
+          </option>
+        ))}
+      </select>
+    );
+  };
 
   const getDemandeur = (demande) => {
     if (demande.Nom || demande.Prenom) {
@@ -78,15 +170,18 @@ export default function Table_Demandes({
       return `Réalisé le ${new Date(demande.Date_realise).toLocaleDateString("fr-FR")}`;
     }
 
-    if (demande.id_technicien) return "Confirmé";
-    if (demande.id_positionneur === 8) return "En attente";
+    if (hasTechnicien(demande)) return `Pris en charge par ${getIntervenant(demande)}`;
+    if (!hasPositionneur(demande)) return "En attente";
     return "En attente de validation";
   };
 
   return (
     <>
     <section className="grid w-full max-w-full gap-3 overflow-hidden md:hidden">
-      {demandes.map((demande) => (
+      {demandes.map((demandeInitiale) => {
+        const demande = getDemandeAffichee(demandeInitiale);
+
+        return (
         <article
           key={demande.id_demande}
           className="w-full max-w-full overflow-hidden rounded-lg bg-green-200 p-4 text-sm shadow"
@@ -130,9 +225,8 @@ export default function Table_Demandes({
               </button>
 
               {isManageur &&
-                demande.id_positionneur &&
-                demande.id_positionneur !== 1 &&
-                !demande.id_technicien && (
+                hasPositionneur(demande) &&
+                !hasTechnicien(demande) && (
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       className="btn btn-xs btn-success w-full"
@@ -149,7 +243,11 @@ export default function Table_Demandes({
                   </div>
                 )}
 
-              {isManageur && demande.id_technicien && (
+              {peutChoisirTechnicien(demande) && (
+                <SelectTechnicien demande={demande} className="w-full" />
+              )}
+
+              {isManageur && hasTechnicien(demande) && (
                 <button
                   className="btn btn-xs btn-info w-full"
                   onClick={() => ouvrirMessagerie(demande)}
@@ -167,7 +265,7 @@ export default function Table_Demandes({
                 </button>
               )}
 
-              {isFormateur && demande.id_positionneur === 8 && (
+              {isFormateur && !hasPositionneur(demande) && !hasTechnicien(demande) && (
                 <button
                   className="btn btn-xs btn-success w-full"
                   onClick={() => positionnerDemande(demande.id_demande)}
@@ -176,7 +274,7 @@ export default function Table_Demandes({
                 </button>
               )}
 
-              {isFormateur && demande.id_technicien === idUser && (
+              {isFormateur && Number(demande.id_technicien) === Number(idUser) && (
                 <button
                   className="btn btn-xs btn-info w-full"
                   onClick={() => ouvrirMessagerie(demande)}
@@ -187,7 +285,8 @@ export default function Table_Demandes({
             </div>
           )}
         </article>
-      ))}
+        );
+      })}
     </section>
 
     <div className="hidden w-full overflow-x-auto rounded-lg md:block">
@@ -206,7 +305,10 @@ export default function Table_Demandes({
       </thead>
 
       <tbody className="text-xs sm:text-sm xl:text-lg">
-        {demandes.map((demande) => (
+        {demandes.map((demandeInitiale) => {
+          const demande = getDemandeAffichee(demandeInitiale);
+
+          return (
           <Fragment key={demande.id_demande}>
             <tr key={demande.id_demande}>
               <td className="whitespace-nowrap">{demande.id_demande}</td>
@@ -254,9 +356,8 @@ export default function Table_Demandes({
                     {new Date(demande.Date_realise).toLocaleDateString("fr-FR")}
                   </span>
                 ) : isManageur &&
-                  demande.id_positionneur &&
-                  demande.id_positionneur !== 1 &&
-                  !demande.id_technicien ? (
+                  hasPositionneur(demande) &&
+                  !hasTechnicien(demande) ? (
                   <div className="flex items-center gap-2">
                     <span>
                       {demande.Prenom_positionneur} {demande.Nom_positionneur}
@@ -278,24 +379,23 @@ export default function Table_Demandes({
                       ❌
                     </button>
                   </div>
-                ) : isManageur && demande.id_technicien ? (
+                ) : hasTechnicien(demande) ? (
                   <div className="flex items-center gap-2">
-                    <span>
-                      ✅{" "}
-                      {demande.id_technicien === 1
-                        ? "Technicien"
-                        : `${demande.Prenom_positionneur} ${demande.Nom_positionneur}`}
-                    </span>
+                    <span>✅ {getIntervenant(demande)}</span>
 
-                    <button
-                      className="btn btn-xs btn-info"
-                      title="Messagerie"
-                      onClick={() => ouvrirMessagerie(demande)}
-                    >
-                      💬
-                    </button>
+                    {isManageur && (
+                      <button
+                        className="btn btn-xs btn-info"
+                        title="Messagerie"
+                        onClick={() => ouvrirMessagerie(demande)}
+                      >
+                        💬
+                      </button>
+                    )}
                   </div>
-                ) : isFormateur && demande.id_positionneur === 8 ? (
+                ) : peutChoisirTechnicien(demande) ? (
+                  <SelectTechnicien demande={demande} className="min-w-48" />
+                ) : isFormateur && !hasPositionneur(demande) && !hasTechnicien(demande) ? (
                   <button
                     className="btn btn-xs btn-success"
                     onClick={() => positionnerDemande(demande.id_demande)}
@@ -303,12 +403,12 @@ export default function Table_Demandes({
                     Se positionner
                   </button>
                 ) : isFormateur &&
-                  demande.id_positionneur === idUser &&
-                  !demande.id_technicien ? (
+                  Number(demande.id_positionneur) === Number(idUser) &&
+                  !hasTechnicien(demande) ? (
                   <span className="badge badge-warning">
                     Positionné, en attente
                   </span>
-                ) : isFormateur && demande.id_technicien === idUser ? (
+                ) : isFormateur && Number(demande.id_technicien) === Number(idUser) ? (
                   <div className="flex items-center gap-2">
                     <span>✅ Vous êtes confirmé</span>
 
@@ -399,7 +499,8 @@ export default function Table_Demandes({
               </tr>
             )}
           </Fragment>
-        ))}
+          );
+        })}
       </tbody>
     </table>
     </div>

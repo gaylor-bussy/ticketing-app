@@ -339,10 +339,22 @@ router.get("/dashboard/utilisateur", auth, (req, res) => {
   const id_user = req.user.id_user;
 
   const sql = `
-SELECT *,(SELECT user_.nom)
+SELECT
+    demande.*,
+    technicien.Nom AS Nom_technicien,
+    technicien.Prenom AS Prenom_technicien,
+    positionneur.Nom AS Nom_positionneur,
+    positionneur.Prenom AS Prenom_positionneur,
+    positionneur.id_role AS id_role_positionneur,
+    demandeur.Nom AS Nom,
+    demandeur.Prenom AS Prenom
 FROM demande
-INNER JOIN user_
-ON demande.id_demandeur = user_.id_user
+LEFT JOIN user_ AS technicien
+    ON demande.id_technicien = technicien.id_user
+LEFT JOIN user_ AS positionneur
+    ON demande.id_positionneur = positionneur.id_user
+INNER JOIN user_ AS demandeur
+ON demande.id_demandeur = demandeur.id_user
 WHERE demande.id_demandeur = ?
 `;
   db.query(sql, [id_user], (err, results) => {
@@ -371,11 +383,16 @@ SELECT
     demande.*,
     positionneur.Nom AS Nom_positionneur,
     positionneur.Prenom AS Prenom_positionneur,
+    positionneur.id_role AS id_role_positionneur,
+    technicien.Nom AS Nom_technicien,
+    technicien.Prenom AS Prenom_technicien,
     demandeur.Nom AS Nom,
     demandeur.Prenom AS Prenom
 FROM demande
 LEFT JOIN user_ AS positionneur
     ON demande.id_positionneur = positionneur.id_user
+LEFT JOIN user_ AS technicien
+    ON demande.id_technicien = technicien.id_user
 LEFT JOIN user_ AS demandeur
     ON demande.id_demandeur = demandeur.id_user;
 `;
@@ -406,11 +423,16 @@ SELECT
     demande.*,
     positionneur.Nom AS Nom_positionneur,
     positionneur.Prenom AS Prenom_positionneur,
+    positionneur.id_role AS id_role_positionneur,
+    technicien.Nom AS Nom_technicien,
+    technicien.Prenom AS Prenom_technicien,
     demandeur.Nom AS Nom,
     demandeur.Prenom AS Prenom
 FROM demande
 LEFT JOIN user_ AS positionneur
     ON demande.id_positionneur = positionneur.id_user
+LEFT JOIN user_ AS technicien
+    ON demande.id_technicien = technicien.id_user
 LEFT JOIN user_ AS demandeur
     ON demande.id_demandeur = demandeur.id_user;
 `;
@@ -835,6 +857,85 @@ router.put(
       return res.status(200).json({
         message: "Changement accepté",
         code: "OK",
+      });
+    });
+  },
+);
+
+// ##############################################################################################################
+// #                                             affectation technicien manageur                                #
+// ##############################################################################################################
+
+router.put(
+  "/dashboard/complet/uptade/technicien/:id_demande",
+  auth,
+  function (req, res, next) {
+    const id_demande = req.params.id_demande;
+    const id_role = req.user.id_role;
+    const { id_technicien } = req.body;
+
+    if (id_role !== 1) {
+      return res.status(403).json({ message: "Accès refusé." });
+    }
+
+    if (!id_technicien) {
+      return res.status(400).json({ message: "Technicien obligatoire." });
+    }
+
+    const sqlTechnicien = `
+      SELECT id_user, Nom, Prenom
+      FROM user_
+      WHERE id_user = ?
+    `;
+
+    db.query(sqlTechnicien, [id_technicien], (err, techniciens) => {
+      if (err) {
+        console.error("Erreur SQL :", err);
+
+        return res.status(500).json({
+          message: err.message,
+          code: err.code,
+          sqlMessage: err.sqlMessage,
+        });
+      }
+
+      if (techniciens.length === 0) {
+        return res.status(404).json({
+          message: "Technicien introuvable.",
+          code: "NOT_FOUND",
+        });
+      }
+
+      const sql = `
+        UPDATE demande
+        SET id_technicien = ?, id_positionneur = ?
+        WHERE id_demande = ?
+      `;
+      const id_positionneur = Number(id_technicien) === 8 ? req.user.id_user : id_technicien;
+
+      db.query(sql, [id_technicien, id_positionneur, id_demande], (err, result) => {
+        if (err) {
+          console.error("Erreur SQL :", err);
+
+          return res.status(500).json({
+            message: err.message,
+            code: err.code,
+            sqlMessage: err.sqlMessage,
+          });
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            message: "Demande introuvable.",
+            code: "NOT_FOUND",
+          });
+        }
+
+        return res.status(200).json({
+          message: "Technicien affecté.",
+          code: "OK",
+          technicien: techniciens[0],
+        });
       });
     });
   },

@@ -180,6 +180,7 @@ const demandesFiltrees = demandes.filter((demande) => {
                 ouvrirModalPriorite={ouvrirModalPriorite}
                 ouvrirMessagerie={ouvrirMessagerie}
                 idUser={user?.id_user}
+                idRole={user?.id_role}
             />
 
             <Modal_Add_Demande

@@ -43,6 +43,7 @@ export default function Table_Demandes({
   ouvrirModalPriorite,
   ouvrirMessagerie,
   idUser,
+  idRole,
   approuverPositionnement,
   refuserPositionnement,
   validerRealisation,
@@ -265,7 +266,7 @@ export default function Table_Demandes({
                 </button>
               )}
 
-              {isFormateur && !hasPositionneur(demande) && !hasTechnicien(demande) && (
+              {isFormateur && !hasPositionneur(demande) && !hasTechnicien(demande) &&  (
                 <button
                   className="btn btn-xs btn-success w-full"
                   onClick={() => positionnerDemande(demande.id_demande)}
@@ -395,7 +396,8 @@ export default function Table_Demandes({
                   </div>
                 ) : peutChoisirTechnicien(demande) ? (
                   <SelectTechnicien demande={demande} className="min-w-48" />
-                ) : isFormateur && !hasPositionneur(demande) && !hasTechnicien(demande) ? (
+                ) : isFormateur && !hasPositionneur(demande) && !hasTechnicien(demande) && idRole !== 3 
+  ? (
                   <button
                     className="btn btn-xs btn-success"
                     onClick={() => positionnerDemande(demande.id_demande)}
@@ -404,7 +406,7 @@ export default function Table_Demandes({
                   </button>
                 ) : isFormateur &&
                   Number(demande.id_positionneur) === Number(idUser) &&
-                  !hasTechnicien(demande) ? (
+                  !hasTechnicien(demande)  ? (
                   <span className="badge badge-warning">
                     Positionné, en attente
                   </span>

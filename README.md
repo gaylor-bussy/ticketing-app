@@ -42,7 +42,6 @@ Elle permet à différents utilisateurs (Utilisateur, Formateur, Manager et Tech
 
 # Technologies utilisées
 
-- PHP : 8.2.12
 - React 18.react.dev
 - xamp : v3.3.0
 - Vite
@@ -61,7 +60,6 @@ Elle permet à différents utilisateurs (Utilisateur, Formateur, Manager et Tech
 
 Avant de lancer le projet, assurez-vous d'avoir installé :
 
-- xamp : v3.3.0
 - Node.js
 - npm
 - MySQL

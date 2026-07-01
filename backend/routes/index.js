@@ -19,7 +19,7 @@ const db = mysql.createPool({
   user: "root", // Nom d'utilisateur MySQL
   password: "", // Mot de passe MySQL
   database: "ticketing", // Nom de la base de données
-  // port: 3307,
+  port: 3307,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -133,7 +133,8 @@ router.post("/invite/request", (req, res) => {
 //     ON demande.id_demandeur = demandeur.id_user;
 router.get("/invite/request/:NbRequest", (req, res) => {
   const NbRequest = req.params.NbRequest;
-  const sql = "SELECT demande.* , demandeur.Nom AS Nom , demandeur.Prenom AS Prenom FROM demande LEFT JOIN user_ AS demandeur ON demande.id_demandeur = demandeur.id_user WHERE id_demande = ?";
+  const sql =
+    "SELECT demande.* , demandeur.Nom AS Nom , demandeur.Prenom AS Prenom FROM demande LEFT JOIN user_ AS demandeur ON demande.id_demandeur = demandeur.id_user WHERE id_demande = ?";
   db.query(sql, [NbRequest], (err, results) => {
     if (results.length === 0) {
       return res.status(409).json({
@@ -909,12 +910,11 @@ ORDER BY MONTH(Date_creation);
   });
 });
 
-
 // ##############################################################################################################
 // #                                   Graphique Année                                                          #
 // ##############################################################################################################
 
-router.get("/dashboard/manageur/graphique/annee",auth, (req, res) => {
+router.get("/dashboard/manageur/graphique/annee", auth, (req, res) => {
   const id = req.params.id_demande;
   const id_role = req.user.id_role;
   if (id_role !== 1) {
@@ -932,7 +932,7 @@ FROM demande
 GROUP BY YEAR(Date_creation)
 ORDER BY YEAR(Date_creation);
 `;
-  db.query(sql,[id], (err, results) => {
+  db.query(sql, [id], (err, results) => {
     if (err) {
       console.error("Erreur lors de la requête :", err.message);
       return res.status(500).json({ message: "Erreur serveur." });

@@ -76,7 +76,7 @@ export default function Consulter_Demande({ setNumDemande }) {
             name="num_demande"
           />
         </div>
-        <button type="submit" className="btn btn-success mt-6 h-12 w-full text-base sm:h-14 sm:text-xl">
+        <button type="submit" className="btn btn-success text-black mt-6 h-12 w-full text-base sm:h-14 sm:text-xl">
           Consulter
         </button>
       </form>

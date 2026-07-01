@@ -109,7 +109,7 @@ Le script effectue automatiquement les opérations suivantes :
 - Lance le backend.
 - Lance le frontend.
 - Ouvre automatiquement l'application dans le navigateur.
-
+(Si la connexion avec SQL ne ce lance pas changer le port dans backend/route/index.js/l.22)
 ---
 
 # Accès à l'application

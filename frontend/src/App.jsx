@@ -32,10 +32,11 @@ function App() {
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token");
   });
-
+  const [colorChange, setColorChange] = useState(false);
+  const [noColorChange, setNoColorChange] = useState(false);
   return (
     <section className="grid min-h-screen w-full max-w-full grid-rows-[auto_1fr_auto] overflow-x-hidden">
-      <Header user={user} setUser={setUser} token={token} setToken={setToken} setNextPage={setNextPage}/>
+      <Header user={user} setUser={setUser} token={token} setToken={setToken} setNextPage={setNextPage} colorChange={colorChange} setColorChange={setColorChange} noColorChange={noColorChange} setNoColorChange={setNoColorChange}/>
       <main className="min-h-0 w-full max-w-full overflow-x-hidden bg-zinc-700">
         <Routes>
           <Route path="/" element={<HomePage setIdDemandeInvitee={setIdDemandeInvitee} setNextPage={setNextPage} nextPage={nextPage}/>} />
@@ -45,8 +46,8 @@ function App() {
           <Route path="/dashboard/manageur" element={<Dashboard_Manageur userr={user}/>} />
           <Route path="/dashboard/formateur-technicien" element={<Dashboard_Formateur userr={user}/>} />
           <Route path="/consulter-demande" element={<Consulter_Demande setNumDemande={setNumDemande}/>} />
-          <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} />} />
-          <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande}/>} />
+          <Route path="/resultat-demande" element={<Result_Demand idDemandeInvitee={idDemandeInvitee} setColorChange={setColorChange} />} />
+          <Route path="/demand-invit-show" element={<ShowDemandinvite idDemandeInvitee={idDemandeInvitee} numDemande={numDemande} />} />
           <Route path="/demand-invite-show2" element={<ShowDemandinvite2 />} />
           <Route path="/dashboard/manageur/graphique" element={<Graphique userr={user}/>} />
           <Route path="/dashboard/manageur/graphique/annee" element={<GraphiqueAnnee userr={user}/>} />

@@ -7,9 +7,12 @@ export default function Header({
   token,
   setToken,
   setNextPage,
+  colorChange,
+  setColorChange,
+  noColorChange,
+  setNoColorChange,
 }) {
-  const [colorChange, setColorChange] = useState(false);
-  const [noColorChange, setNoColorChange] = useState(false);
+
 
   function handleChange() {
     setNextPage(false);

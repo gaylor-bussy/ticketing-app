@@ -18,6 +18,7 @@ export default function Dashboard_Manager({ userr }) {
     const [nouvellePriorite, setNouvellePriorite] = useState("2");
     const [showMessagerie, setShowMessagerie] = useState(false);
     const [demandeMessagerie, setDemandeMessagerie] = useState(null);
+    const [techniciens, setTechniciens] = useState([]);
     const exportExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(demandes);
         const workbook = XLSX.utils.book_new();
@@ -56,6 +57,24 @@ export default function Dashboard_Manager({ userr }) {
                 setDemandes(data);
             })
             .catch((error) => console.error(error));
+
+        fetch("http://localhost:3000/dashboard/manageur/gestion_utilisateur", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (Array.isArray(data)) {
+                    setTechniciens(
+                        data.filter((utilisateur) => Number(utilisateur.id_role) === 3),
+                    );
+                } else {
+                    setTechniciens([]);
+                }
+            })
+            .catch((error) => console.error(error));
     }, []);
 
     const ajouterDemande = async () => {
@@ -83,39 +102,6 @@ export default function Dashboard_Manager({ userr }) {
         setPriorite("2");
         setShowModal(false);
         window.location.reload();
-    };
-
-    const positionnerDemande = async (id_demande) => {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-            `http://localhost:3000/dashboard/complet/uptade/posionnement/${id_demande}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            },
-        );
-
-
-        const data = await response.json();
-        console.log(data);
-
-        if (response.ok) {
-            setDemandes((prevDemandes) =>
-                prevDemandes.map((demande) =>
-                    demande.id_demande === id_demande
-                        ? {
-                            ...demande,
-                            id_positionneur: user.id_user,
-                            Nom_positionneur: user.Nom,
-                            Prenom_positionneur: user.Prenom,
-                        }
-                        : demande,
-                ),
-            );
-        }
     };
 
     const ouvrirModalPriorite = (demande) => {
@@ -178,10 +164,77 @@ export default function Dashboard_Manager({ userr }) {
             setDemandes((prev) =>
                 prev.map((demande) =>
                     demande.id_demande === id_demande
-                        ? { ...demande, id_technicien: demande.id_positionneur }
+                        ? {
+                            ...demande,
+                            id_technicien: demande.id_positionneur,
+                            Nom_technicien: demande.Nom_positionneur,
+                            Prenom_technicien: demande.Prenom_positionneur,
+                        }
                         : demande,
                 ),
             );
+        }
+    };
+
+    const choisirTechnicien = async (id_demande, id_technicien) => {
+        if (!id_technicien) return;
+
+        const token = localStorage.getItem("token");
+        const idTechnicien = Number(id_technicien);
+        const idPositionneur = idTechnicien === 8 ? user?.id_user : idTechnicien;
+        const technicienSelectionne = techniciens.find(
+            (technicien) => Number(technicien.id_user) === idTechnicien,
+        );
+
+        const appliquerTechnicien = (technicien = technicienSelectionne) => {
+          setDemandes((prev) =>
+            prev.map((demande) =>
+                String(demande.id_demande) === String(id_demande)
+                    ? {
+                        ...demande,
+                        id_technicien: idTechnicien,
+                        id_positionneur: idPositionneur,
+                        technicien_selectionne: true,
+                        Nom_technicien: technicien?.Nom,
+                        Prenom_technicien: technicien?.Prenom,
+                        Nom_positionneur: technicien?.Nom,
+                        Prenom_positionneur: technicien?.Prenom,
+                    }
+                    : demande,
+            ),
+          );
+        };
+
+        appliquerTechnicien();
+
+        try {
+            const response = await fetch(
+                `http://localhost:3000/dashboard/complet/uptade/technicien/${id_demande}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ id_technicien }),
+                },
+            );
+
+            const contentType = response.headers.get("content-type") || "";
+            const data = contentType.includes("application/json")
+                ? await response.json()
+                : { message: await response.text() };
+
+            console.log(data);
+
+            if (!response.ok) {
+                console.error(data.message || "Le technicien n'a pas pu être enregistré.");
+                return;
+            }
+
+            appliquerTechnicien(data.technicien || technicienSelectionne);
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -294,6 +347,8 @@ export default function Dashboard_Manager({ userr }) {
                 refuserPositionnement={refuserPositionnement}
                 ouvrirMessagerie={ouvrirMessagerie}
                 validerRealisation={validerRealisation}
+                techniciens={techniciens}
+                choisirTechnicien={choisirTechnicien}
                 idUser={user?.id_user}
             />
 

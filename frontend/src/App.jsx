@@ -34,9 +34,9 @@ function App() {
   });
 
   return (
-    <section className="h-screen grid grid-rows-[230px_1fr_50px]">
+    <section className="grid min-h-screen w-full max-w-full grid-rows-[auto_1fr_auto] overflow-x-hidden">
       <Header user={user} setUser={setUser} token={token} setToken={setToken} setNextPage={setNextPage}/>
-      <main className="bg-zinc-700">
+      <main className="min-h-0 w-full max-w-full overflow-x-hidden bg-zinc-700">
         <Routes>
           <Route path="/" element={<HomePage setIdDemandeInvitee={setIdDemandeInvitee} setNextPage={setNextPage} nextPage={nextPage}/>} />
           <Route path="/dashboard/user" element={<Dashboard_User user={user}/>} />

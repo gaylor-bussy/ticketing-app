@@ -47,8 +47,8 @@ export default function Inscription() {
     }
   }
   return (
-    <section className="flex justify-center h-full items-center">
-      <form action="" className="flex flex-col w-xl" onSubmit={handleSubmit}>
+    <section className="flex min-h-full items-center justify-center px-3 py-6">
+      <form action="" className="flex w-full max-w-xl flex-col" onSubmit={handleSubmit}>
         {message ? (
           <div
             role="alert"
@@ -71,55 +71,55 @@ export default function Inscription() {
           </div>
         ) : null}
         <div className="my-4">
-          <label className="text-white text-2xl" htmlFor="">
+          <label className="text-white text-lg sm:text-2xl" htmlFor="">
             Numéro AFPA :
           </label>
           <input
             type="text"
             placeholder="Saisissez votre numéro AFPA"
-            className="input input-success w-full placeholder:text-xl h-12"
+            className="input input-success w-full placeholder:text-base sm:placeholder:text-xl h-12"
             name="num_afpa"
             required
           />
         </div>
         <div className="my-4">
-          <label className="text-white text-2xl" htmlFor="">
+          <label className="text-white text-lg sm:text-2xl" htmlFor="">
             Nom :
           </label>
           <input
             type="text"
             placeholder="Saisissez votre Nom"
-            className="input input-success w-full placeholder:text-xl h-12"
+            className="input input-success w-full placeholder:text-base sm:placeholder:text-xl h-12"
             name="nom"
             required
           />
         </div>
         <div className="my-4">
-          <label className="text-white text-2xl" htmlFor="">
+          <label className="text-white text-lg sm:text-2xl" htmlFor="">
             Prénom :
           </label>
           <input
             type="text"
             placeholder="Saisissez votre Prénom"
-            className="input input-success w-full placeholder:text-xl h-12"
+            className="input input-success w-full placeholder:text-base sm:placeholder:text-xl h-12"
             name="prenom"
             required
           />
         </div>
         <div className="my-4">
-          <label className="text-white text-2xl" htmlFor="">
+          <label className="text-white text-lg sm:text-2xl" htmlFor="">
             Mot de passe :
           </label>
           <input
             type="password"
             placeholder="Saisissez votre mot de passe"
-            className="input input-success w-full placeholder:text-xl h-12"
+            className="input input-success w-full placeholder:text-base sm:placeholder:text-xl h-12"
             name="password"
             required
           />
         </div>
         <button
-          className="btn btn-success h-14 w-full text-2xl my-4 text-black"
+          className="btn btn-success h-12 sm:h-14 w-full text-lg sm:text-2xl my-4 text-black"
           type="submit"
         >
           Inscription

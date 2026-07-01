@@ -11,9 +11,9 @@ export default function Deconnexion({ user, setUser, token, setToken }) {
     navigate("/");
   }
   return (
-    <div className="flex">
+    <div className="flex w-full sm:w-auto">
       <button
-        className="btn btn-success m-2 text-black h-10 text-sm lg:h-14 lg:text-2xl"
+        className="btn btn-success h-12 w-full text-base text-black sm:w-auto lg:text-lg"
         onClick={handleDeconnexion}
       >
         Deconnexion

@@ -14,5 +14,9 @@ export default function ShowDemandinvite2({ idDemandeInvitee, numDemande }) {
       .catch((error) => console.error(error));
   }, []);
   console.log(demandes);
-  return <Table_Demandes demandes={demandes} />;
+  return (
+    <section className="w-full px-3 py-4 sm:px-6 lg:py-8">
+      <Table_Demandes demandes={demandes} />
+    </section>
+  );
 }
